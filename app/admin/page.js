@@ -15,20 +15,23 @@ export default function AdminDashboard() {
   }, [])
 
   const StatCard = ({ title, value, icon }) => (
-    <div className="bg-white p-6 rounded-lg shadow-md">
+    <div className="bg-[#1E293B] p-6 rounded-lg shadow-xl border border-[#334155] hover:border-[#A78BFA] transition-all duration-300">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-gray-500 text-sm">{title}</p>
-          <h3 className="text-2xl font-bold mt-1">{value}</h3>
+          <p className="text-[#A78BFA] text-sm font-medium mb-1">{title}</p>
+          <h3 className="text-2xl font-bold text-[#F8FAFC]">{value}</h3>
         </div>
-        <span className="text-3xl">{icon}</span>
+        <span className="text-3xl bg-[#334155] p-3 rounded-lg">{icon}</span>
       </div>
     </div>
   )
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-[#F8FAFC] mb-2">Dashboard</h1>
+        <p className="text-[#A78BFA]">Welcome to your admin dashboard</p>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
@@ -53,22 +56,74 @@ export default function AdminDashboard() {
         />
       </div>
 
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Activity */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-          <div className="space-y-4">
-            {/* Add recent activity items here */}
-            <p className="text-gray-500">No recent activity</p>
+        <div className="bg-[#1E293B] rounded-lg shadow-xl border border-[#334155]">
+          <div className="p-6 border-b border-[#334155]">
+            <h2 className="text-xl font-bold text-[#F8FAFC]">Recent Activity</h2>
+          </div>
+          <div className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center p-4 rounded-lg bg-[#0F172A] border border-[#334155]">
+                <div className="p-2 bg-[#334155] rounded-lg mr-4">
+                  <span className="text-2xl">📝</span>
+                </div>
+                <div>
+                  <h3 className="text-[#F8FAFC] font-medium">New Subject Added</h3>
+                  <p className="text-sm text-[#A78BFA]">Guitar Basics - 2 hours ago</p>
+                </div>
+              </div>
+              <div className="flex items-center p-4 rounded-lg bg-[#0F172A] border border-[#334155]">
+                <div className="p-2 bg-[#334155] rounded-lg mr-4">
+                  <span className="text-2xl">👥</span>
+                </div>
+                <div>
+                  <h3 className="text-[#F8FAFC] font-medium">New Batch Created</h3>
+                  <p className="text-sm text-[#A78BFA]">Piano Advanced - 3 hours ago</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Upcoming Classes */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Today's Classes</h2>
-          <div className="space-y-4">
-            {/* Add upcoming classes here */}
-            <p className="text-gray-500">No classes scheduled for today</p>
+        <div className="bg-[#1E293B] rounded-lg shadow-xl border border-[#334155]">
+          <div className="p-6 border-b border-[#334155]">
+            <h2 className="text-xl font-bold text-[#F8FAFC]">Today's Classes</h2>
+          </div>
+          <div className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 rounded-lg bg-[#0F172A] border border-[#334155]">
+                <div className="flex items-center">
+                  <div className="p-2 bg-[#334155] rounded-lg mr-4">
+                    <span className="text-2xl">🎸</span>
+                  </div>
+                  <div>
+                    <h3 className="text-[#F8FAFC] font-medium">Guitar Basics</h3>
+                    <p className="text-sm text-[#A78BFA]">Batch A - Beginner Level</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-[#F8FAFC] font-medium">2:00 PM</p>
+                  <p className="text-sm text-[#A78BFA]">1 hour</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-4 rounded-lg bg-[#0F172A] border border-[#334155]">
+                <div className="flex items-center">
+                  <div className="p-2 bg-[#334155] rounded-lg mr-4">
+                    <span className="text-2xl">🎹</span>
+                  </div>
+                  <div>
+                    <h3 className="text-[#F8FAFC] font-medium">Piano Advanced</h3>
+                    <p className="text-sm text-[#A78BFA]">Batch B - Advanced Level</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-[#F8FAFC] font-medium">4:00 PM</p>
+                  <p className="text-sm text-[#A78BFA]">2 hours</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

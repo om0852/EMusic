@@ -15,22 +15,32 @@ export default function AdminLayout({ children }) {
   ]
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-[#0F172A]">
       {/* Sidebar */}
-      <aside className={`bg-white w-64 min-h-screen p-4 shadow-lg transition-all duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-64'}`}>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Admin Panel</h2>
-          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="lg:hidden">
+      <aside 
+        className={`bg-[#1E293B] min-h-screen w-72 shadow-xl transition-all duration-300 border-r border-[#334155] ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-72'
+        }`}
+      >
+        <div className="flex items-center justify-between p-6 border-b border-[#334155]">
+          <h2 className="text-2xl font-bold text-[#F8FAFC]">Admin Panel</h2>
+          <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+            className="lg:hidden text-[#F8FAFC] hover:text-[#A78BFA] transition-colors duration-200"
+          >
             {isSidebarOpen ? '←' : '→'}
           </button>
         </div>
-        <nav>
+        <nav className="p-4">
           <ul className="space-y-2">
             {menuItems.map((item) => (
               <li key={item.path}>
-                <Link href={item.path} className="flex items-center p-2 text-gray-700 rounded hover:bg-gray-100">
-                  <span className="mr-3">{item.icon}</span>
-                  <span>{item.title}</span>
+                <Link 
+                  href={item.path} 
+                  className="flex items-center px-4 py-3 text-[#F8FAFC] rounded-lg hover:bg-[#334155] hover:text-[#A78BFA] transition-all duration-200"
+                >
+                  <span className="mr-4 text-xl">{item.icon}</span>
+                  <span className="font-medium">{item.title}</span>
                 </Link>
               </li>
             ))}
@@ -39,8 +49,10 @@ export default function AdminLayout({ children }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8 overflow-y-auto">
-        {children}
+      <main className="flex-1 overflow-y-auto p-8">
+        <div className="max-w-7xl mx-auto">
+          {children}
+        </div>
       </main>
     </div>
   )
