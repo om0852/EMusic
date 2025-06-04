@@ -1,6 +1,5 @@
 import SubjectModel from "@/app/models/Subject";
 import { connectDB } from "@/app/utils/db";
-import { connect } from "mongoose";
 import { NextResponse } from "next/server";
 
 export async function GET(request) {

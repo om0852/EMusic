@@ -1,9 +1,12 @@
-import LevelTypeModel from "@/app/models/LevelType";
+import LevelTypeModel from "@/app/models/Level";
 import SubjectModel from "@/app/models/Subject";
+import { connectDB } from "@/app/utils/db";
 import { NextResponse } from "next/server";
 
 export async function GET(request) {
   try {
+    connectDB();
+
     const subjectId = request.nextUrl.searchParams.get("subjectId");
     
     if (subjectId) {
@@ -24,16 +27,20 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    connectDB();
     const body = await request.json();
     const level = await LevelTypeModel.create(body);
     return NextResponse.json({ data: level }, { status: 201 });
   } catch (error) {
+    console.log(error)
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
 
 export async function PUT(request) {
   try {
+    connectDB();
+
     const body = await request.json();
     const { _id, ...updateData } = body;
     
@@ -55,6 +62,8 @@ export async function PUT(request) {
 
 export async function DELETE(request) {
   try {
+    connectDB();
+
     const id = request.nextUrl.searchParams.get("id");
     const level = await LevelTypeModel.findByIdAndDelete(id);
     

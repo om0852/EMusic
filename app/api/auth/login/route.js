@@ -2,10 +2,29 @@ import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import User from '../../../models/User';
 import { connectDB } from '@/app/utils/db';
+
 export async function POST(req) {
   try {
     await connectDB();
-    const { email, password } = await req.json();
+    
+    let body;
+    try {
+      body = await req.json();
+    } catch (error) {
+      return NextResponse.json(
+        { message: 'Invalid request body' },
+        { status: 400 }
+      );
+    }
+
+    const { email, password } = body;
+
+    if (!email || !password) {
+      return NextResponse.json(
+        { message: 'Email and password are required' },
+        { status: 400 }
+      );
+    }
 
     // Find user
     const user = await User.findOne({ email });
@@ -15,7 +34,7 @@ export async function POST(req) {
         { status: 401 }
       );
     }
-
+console.log(user)
     // Check password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
@@ -33,16 +52,19 @@ export async function POST(req) {
       );
     }
 
-    // Generate JWT token
+    // Generate JWT token with user role
     const token = jwt.sign(
-      { userId: user._id },
+      { 
+        userId: user._id,
+        role: user.role
+      },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // Create response
-    const response = NextResponse.json(
-      { 
+    // Create response with cookie
+    const response = new NextResponse(
+      JSON.stringify({
         message: 'Login successful',
         user: {
           id: user._id,
@@ -50,15 +72,20 @@ export async function POST(req) {
           email: user.email,
           role: user.role
         }
-      },
-      { status: 200 }
+      }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
     );
 
     // Set cookie
     response.cookies.set('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
@@ -66,7 +93,7 @@ export async function POST(req) {
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { message: 'Login failed' },
+      { message: 'Internal server error' },
       { status: 500 }
     );
   }

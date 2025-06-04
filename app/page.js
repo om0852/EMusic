@@ -80,7 +80,7 @@ export default function Home() {
                         />
                       </svg>
                       Interactive Learning
-                    </li>
+          </li>
                     <li className="flex items-center">
                       <svg
                         className="w-5 h-5 text-[#3F51B5] mr-2"
@@ -96,7 +96,7 @@ export default function Home() {
                         />
                       </svg>
                       Flexible Schedule
-                    </li>
+          </li>
                   </ul>
                   <Link
                     href="/m-class"

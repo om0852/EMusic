@@ -82,68 +82,6 @@ connectDB();
   }
 }
 
-// Login endpoint
-export async function PUT(req) {
-  try {
-    connectDB();
-
-    const { email, password } = await req.json();
-
-    // Find user
-    const user = await User.findOne({ email });
-    if (!user) {
-      return NextResponse.json(
-        { message: 'Invalid credentials' },
-        { status: 401 }
-      );
-    }
-
-    // Check password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return NextResponse.json(
-        { message: 'Invalid credentials' },
-        { status: 401 }
-      );
-    }
-
-    // Check if email is verified
-    if (!user.isVerified) {
-      return NextResponse.json(
-        { message: 'Please verify your email first' },
-        { status: 401 }
-      );
-    }
-
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    // Set cookie
-    const response = NextResponse.json(
-      { message: 'Login successful' },
-      { status: 200 }
-    );
-    
-    response.cookies.set('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
-
-    return response;
-  } catch (error) {
-    return NextResponse.json(
-      { message: 'Error logging in' },
-      { status: 500 }
-    );
-  }
-}
-
 // Verify OTP endpoint
 export async function PATCH(req) {
   try {

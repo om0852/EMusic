@@ -1,16 +1,84 @@
 import mongoose from 'mongoose';
 
+const noteSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true
+  },
+  content: {
+    type: String,
+    required: true
+  },
+  file: {
+    type: String // URL to the PDF file
+  },
+  date: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const assignmentSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  file: {
+    type: String // URL to the PDF file
+  },
+  dueDate: {
+    type: Date,
+    required: true
+  },
+  date: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const lectureSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true
+  },
+  notes: {
+    type: String,
+    required: true
+  },
+  notesFile: {
+    type: String, // URL to the PDF file
+  },
+  assignment: {
+    type: String
+  },
+  assignmentFile: {
+    type: String, // URL to the PDF file
+  },
+  date: {
+    type: Date,
+    required: true
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
 const batchSchema = new mongoose.Schema({
-  subject: {
-    type: mongoose.Schema.Types.ObjectId,
+    subject: {
+      type: mongoose.Schema.Types.ObjectId,
     ref: 'Subject',
-    required: true,
-  },
+      required: true,
+    },
   level: {
-    type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
     ref: 'Level',
-    required: true,
-  },
+      required: true,
+    },
   startDate: {
     type: Date,
     required: true
@@ -18,7 +86,7 @@ const batchSchema = new mongoose.Schema({
   endDate: {
     type: Date,
     required: true
-  },
+    },
   schedule: [{
     day: {
       type: String,
@@ -27,6 +95,14 @@ const batchSchema = new mongoose.Schema({
     startTime: String,
     endTime: String
   }],
+  meetLink: {
+    type: String,
+    trim: true
+    },
+  meetPassword: {
+    type: String,
+    trim: true
+  },
   students: [{
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -73,8 +149,11 @@ const batchSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  notes: [noteSchema],
+  assignments: [assignmentSchema],
+  lectures: [lectureSchema],
   createdAt: {
-    type: Date,
+      type: Date,
     default: Date.now
   }
 });

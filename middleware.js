@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server';
 
 export function middleware(request) {
   const { pathname } = request.nextUrl;
+  
+  // Allow all API routes to pass through
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+
   const isPublicPath = pathname === '/' || pathname === '/login' || pathname === '/signup';
   const token = request.cookies.get('token')?.value;
 
@@ -18,14 +24,16 @@ export function middleware(request) {
   return NextResponse.next();
 }
 
+// Configure which routes to run middleware on
 export const config = {
   matcher: [
-    '/',
-    '/login',
-    '/signup',
-    '/m-class',
-    '/e-class',
-    '/my-batches',
-    '/api/auth/:path*'
-  ]
-}; 
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ],
+} 
