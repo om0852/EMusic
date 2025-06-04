@@ -36,5 +36,5 @@ const LevelTypeSchema = new mongoose.Schema({
 });
 
 
-const LevelTypeModel = mongoose.model("levels",LevelTypeSchema);
+const LevelTypeModel = mongoose.models.levels || mongoose.model("levels",LevelTypeSchema);
 export default LevelTypeModel;

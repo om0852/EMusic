@@ -27,5 +27,5 @@ createdAt:{
 });
 
 
-const SubjectModel = mongoose.model('subjects',SubjectSchema);
+const SubjectModel = mongoose.models.subjects || mongoose.model('subjects',SubjectSchema);
 export default SubjectModel;

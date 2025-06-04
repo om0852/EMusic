@@ -70,5 +70,5 @@ const BatchSchema = new mongoose.Schema({
   }, { timestamps: true });
 
   
-  const BatchModel = mongoose.model("batch", BatchSchema);
+  const BatchModel = mongoose.models.batch || mongoose.model("batch", BatchSchema);
   export default BatchModel
