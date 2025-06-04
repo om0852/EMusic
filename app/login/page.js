@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaEnvelope, FaLock, FaMusic } from 'react-icons/fa';
@@ -13,6 +13,23 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/check', {
+          credentials: 'include'
+        });
+        if (response.ok) {
+          router.push('/');
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      }
+    };
+    checkAuth();
+  }, [router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,8 +46,8 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/route', {
-        method: 'PUT',
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
@@ -44,8 +61,9 @@ export default function Login() {
         throw new Error(data.message || 'Login failed');
       }
 
-      router.push('/m-class');
-      router.refresh();
+      // Redirect to home page after successful login
+      router.push('/');
+      router.refresh(); // This will refresh the navbar state
     } catch (err) {
       setError(err.message);
     } finally {
@@ -153,7 +171,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors ${
+                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-black bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors ${
                   loading ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >

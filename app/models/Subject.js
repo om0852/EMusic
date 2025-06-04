@@ -1,31 +1,30 @@
 import mongoose from "mongoose";
 
-const SubjectSchema = new mongoose.Schema({
-name:{
-    type:String,
-    required:true,
-    unique:true
-},
-description:{
-    type:String,
-    required:true,
-    unique:true
-},
-image: {
+const subjectSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  description: {
+    type: String,
+    trim: true
+  },
+  image: {
     type: String,
     required: true
-},
-status: {
+  },
+  status: {
     type: String,
     enum: ['active', 'inactive'],
     default: 'active'
-},
-createdAt:{
-    type:Date,
-    default:Date.now()
-},
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
+const Subject = mongoose.models.Subject || mongoose.model('Subject', subjectSchema);
 
-const SubjectModel = mongoose.models.subjects || mongoose.model('subjects',SubjectSchema);
-export default SubjectModel;
+export default Subject;

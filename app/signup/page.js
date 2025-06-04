@@ -77,7 +77,7 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/route', {
+      const response = await fetch('/api/auth', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'

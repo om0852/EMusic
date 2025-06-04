@@ -100,19 +100,36 @@ export default function MClassPage() {
 
   const handleSubscribe = async () => {
     try {
+      // First check if user is authenticated
+      const authResponse = await fetch('/api/auth/check', {
+        credentials: 'include'
+      });
+      
+      if (!authResponse.ok) {
+        window.location.href = '/login';
+        return;
+      }
+
+      const userData = await authResponse.json();
+      
       const batchData = {
         subject: selectedSubject._id,
         level: selectedLevel._id,
         type: classType,
-        students: classType === 'group' ? groupMembers : [{ name: 'Demo User', email: 'demo@example.com' }],
+        students: classType === 'group' 
+          ? groupMembers.map(member => ({
+              email: member.email,
+              name: member.name
+            }))
+          : [{
+              userId: userData.user._id,
+              email: userData.user.email
+            }],
         schedule: selectedLevel.schedule,
-        subscriptionPlan: {
-          duration: selectedPlan.duration,
-          name: selectedPlan.name,
-          price: classType === 'individual' 
-            ? calculateDiscountedPrice(selectedLevel.price.individual * selectedPlan.duration, selectedPlan.discount)
-            : calculateGroupPrice(80, selectedPlan.duration, selectedPlan.discount)
-        }
+        subscription: selectedPlan.name,
+        price: classType === 'individual' 
+          ? calculateDiscountedPrice(selectedLevel.price.individual * selectedPlan.duration, selectedPlan.discount)
+          : calculateGroupPrice(80, selectedPlan.duration, selectedPlan.discount)
       };
 
       const response = await fetch('/api/batch', {
@@ -121,16 +138,19 @@ export default function MClassPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(batchData),
+        credentials: 'include'
       });
 
       if (response.ok) {
         // Redirect to My Batches page
         window.location.href = '/my-batches';
       } else {
-        console.error('Failed to create batch');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create batch');
       }
     } catch (error) {
       console.error('Error creating batch:', error);
+      // You might want to show an error message to the user here
     }
   };
 
