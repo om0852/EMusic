@@ -17,6 +17,23 @@ const BatchSchema = new mongoose.Schema({
         ref: "User",
       }
     ],
+    batchType: {
+      type: String,
+      enum: ['individual', 'group'],
+      required: true
+    },
+    maxCapacity: {
+      type: Number,
+      required: function() { return this.batchType === 'group'; }
+    },
+    status: {
+      type: String,
+      enum: ['active', 'completed', 'cancelled'],
+      default: 'active'
+    },
+    meetingLink: {
+      type: String
+    },
     paymentStatus: {
       type: Boolean,
       required: true,
@@ -30,9 +47,11 @@ const BatchSchema = new mongoose.Schema({
     },
     startTime: {
       type: Date,
+      required: true
     },
     endTime: {
       type: Date,
+      required: true
     },
     schedule: [
       {
@@ -40,14 +59,16 @@ const BatchSchema = new mongoose.Schema({
         startTime: Date,
         endTime: Date,
         topic: String,
+        meetingLink: String
       }
     ],
     upComingLecture: {
       topic: String,
       date: Date,
+      meetingLink: String
     },
   }, { timestamps: true });
 
   
-  const BatchModel = mongoose.model("batch",BatchSchema);
+  const BatchModel = mongoose.model("batch", BatchSchema);
   export default BatchModel

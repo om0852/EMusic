@@ -11,6 +11,15 @@ description:{
     required:true,
     unique:true
 },
+image: {
+    type: String,
+    required: true
+},
+status: {
+    type: String,
+    enum: ['active', 'inactive'],
+    default: 'active'
+},
 createdAt:{
     type:Date,
     default:Date.now()
