@@ -101,29 +101,29 @@ export default function AdminBatchesPage() {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Active':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400';
       case 'Completed':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
       case 'Cancelled':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400';
       case 'Upcoming':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="animate-pulse space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white p-6 rounded-lg shadow-md">
-                <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+              <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
                 <div className="space-y-3 mt-4">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
                 </div>
               </div>
             ))}
@@ -135,12 +135,12 @@ export default function AdminBatchesPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
+          <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 dark:border-red-500 p-4 rounded-md">
             <div className="flex">
               <div className="ml-3">
-                <p className="text-sm text-red-700">{error}</p>
+                <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
               </div>
             </div>
           </div>
@@ -150,38 +150,38 @@ export default function AdminBatchesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Manage Batches</h1>
-            <p className="mt-2 text-sm text-gray-600">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Manage Batches</h1>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               Manage and monitor all music learning batches
             </p>
           </div>
           <button
             onClick={() => window.location.href = '/admin/batches/create'}
-            className="bg-primary text-black px-4 py-2 rounded-md hover:bg-primary-dark transition-colors"
+            className="bg-primary dark:bg-primary-dark text-white px-4 py-2 rounded-md hover:bg-primary-dark dark:hover:bg-primary transition-colors"
           >
             Create New Batch
           </button>
         </div>
 
         {/* Filters and Search */}
-        <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm mb-6">
           <div className="flex flex-col md:flex-row gap-4 items-center">
             <div className="flex-1 w-full">
               <input
                 type="text"
                 placeholder="Search by subject or level..."
-                className="w-full px-4 py-2 border rounded-lg focus:ring-primary focus:border-primary"
+                className="w-full px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="flex gap-4 w-full md:w-auto">
               <select
-                className="px-4 py-2 border rounded-lg focus:ring-primary focus:border-primary"
+                className="px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark"
                 value={filters.status}
                 onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
               >
@@ -192,7 +192,7 @@ export default function AdminBatchesPage() {
                 <option value="Cancelled">Cancelled</option>
               </select>
               <select
-                className="px-4 py-2 border rounded-lg focus:ring-primary focus:border-primary"
+                className="px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark"
                 value={filters.subscription}
                 onChange={(e) => setFilters(prev => ({ ...prev, subscription: e.target.value }))}
               >
@@ -207,97 +207,52 @@ export default function AdminBatchesPage() {
         </div>
 
         {/* Batches Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredBatches.map((batch) => (
-            <div key={batch._id} className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div key={batch._id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
               <div className="p-6">
-                <div className="flex justify-between items-start">
+                <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900">
-                      {batch.subject?.name}
-                    </h2>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {batch.level?.name}
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {batch.subject?.name} - {batch.level?.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {batch.subscription} Plan • ${batch.price}
                     </p>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded ${getStatusColor(batch.status)}`}>
-                      {batch.status}
-                    </span>
-                    <div className="flex space-x-1">
-                      <button
-                        onClick={() => window.location.href = `/admin/batches/${batch._id}/edit`}
-                        className="p-1 text-gray-600 hover:text-primary transition-colors"
-                        title="Edit batch"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteBatch(batch._id)}
-                        className="p-1 text-gray-600 hover:text-red-600 transition-colors"
-                        title="Delete batch"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(batch.status)}`}>
+                    {batch.status}
+                  </span>
                 </div>
 
-                <div className="mt-4 space-y-3">
-                  <div className="flex items-center text-sm text-gray-500">
-                    <FaCalendar className="mr-2" />
-                    <span>{formatDate(batch.startDate)} - {formatDate(batch.endDate)}</span>
-                  </div>
-
-                  <div className="flex items-center text-sm text-gray-500">
-                    <FaClock className="mr-2" />
-                    <div>
-                      {batch.schedule.map((s, i) => (
-                        <div key={i}>
-                          {s.day}: {s.startTime} - {s.endTime}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center text-sm text-gray-500">
-                    <FaUsers className="mr-2" />
-                    <span>{batch.students.length} / {batch.maxStudents} students</span>
-                  </div>
-
-                  <div className="flex items-center text-sm text-gray-500">
+                <div className="space-y-3">
+                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                     <FaChalkboardTeacher className="mr-2" />
-                    <span>{batch.teacher?.name || 'Unassigned'}</span>
+                    {batch.teacher?.name}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                    <FaUsers className="mr-2" />
+                    {batch.currentStudents} / {batch.maxStudents} students
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                    <FaCalendar className="mr-2" />
+                    {formatDate(batch.startDate)} - {formatDate(batch.endDate)}
                   </div>
                 </div>
 
-                <div className="mt-6">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="text-sm text-gray-500">{batch.subscription}</span>
-                      <p className="text-lg font-semibold text-gray-900">${batch.price}/month</p>
-                    </div>
-                    <div className="flex space-x-2">
-                      {batch.status !== 'Active' && (
-                        <button
-                          onClick={() => handleStatusChange(batch._id, 'Active')}
-                          className="p-2 text-green-600 hover:bg-green-50 rounded-full transition-colors"
-                          title="Activate batch"
-                        >
-                          <FaCheckCircle />
-                        </button>
-                      )}
-                      {batch.status !== 'Cancelled' && (
-                        <button
-                          onClick={() => handleStatusChange(batch._id, 'Cancelled')}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                          title="Cancel batch"
-                        >
-                          <FaTimesCircle />
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                <div className="mt-6 flex justify-end space-x-3">
+                  <button
+                    onClick={() => window.location.href = `/admin/batches/${batch._id}/edit`}
+                    className="text-primary dark:text-primary-dark hover:bg-primary/10 dark:hover:bg-primary-dark/10 p-2 rounded-full"
+                  >
+                    <FaEdit className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteBatch(batch._id)}
+                    className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-full"
+                  >
+                    <FaTrash className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -305,8 +260,12 @@ export default function AdminBatchesPage() {
         </div>
 
         {filteredBatches.length === 0 && (
-          <div className="bg-white p-6 rounded-lg shadow-md text-center">
-            <p className="text-gray-500">No batches found matching your criteria.</p>
+          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg">
+            <FaFilter className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No batches found</h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Try adjusting your search or filter to find what you're looking for.
+            </p>
           </div>
         )}
       </div>

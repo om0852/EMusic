@@ -12,6 +12,7 @@ export default function AdminLayout({ children }) {
     { title: 'Batches', path: '/admin/batches', icon: '👥' },
     { title: 'Students', path: '/admin/students', icon: '🎓' },
     { title: 'Schedule', path: '/admin/schedule', icon: '📅' },
+    { title: 'History', path: '/admin/history', icon: '🔍' },
   ]
 
   return (

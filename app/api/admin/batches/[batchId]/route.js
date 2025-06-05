@@ -23,7 +23,8 @@ export async function GET(request, { params }) {
     await connectDB();
     await verifyAdmin(request);
 
-    const { batchId } = params;
+    const { batchId } = await params;
+    console.log(batchId)
     const batch = await Batch.findById(batchId)
       .populate('subject', 'name description image')
       .populate('level', 'name description price schedule')
@@ -52,7 +53,7 @@ export async function PATCH(request, { params }) {
     await connectDB();
     await verifyAdmin(request);
 
-    const { batchId } = params;
+    const { batchId } = await params;
     const updateData = await request.json();
 
     const batch = await Batch.findById(batchId);
@@ -119,7 +120,7 @@ export async function DELETE(request, { params }) {
     await connectDB();
     await verifyAdmin(request);
 
-    const { batchId } = params;
+    const { batchId } = await params;
     const batch = await Batch.findById(batchId);
 
     if (!batch) {

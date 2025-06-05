@@ -68,6 +68,34 @@ const lectureSchema = new mongoose.Schema({
   }
 });
 
+const attendanceSchema = new mongoose.Schema({
+  date: {
+    type: Date,
+    required: true
+  },
+  day: {
+    type: String,
+    enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+    required: true
+  },
+  startTime: {
+    type: String,
+    required: true
+  },
+  students: [{
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    status: {
+      type: String,
+      enum: ['present', 'absent'],
+      required: true
+    }
+  }]
+});
+
 const batchSchema = new mongoose.Schema({
     subject: {
       type: mongoose.Schema.Types.ObjectId,
@@ -152,6 +180,7 @@ const batchSchema = new mongoose.Schema({
   notes: [noteSchema],
   assignments: [assignmentSchema],
   lectures: [lectureSchema],
+  attendance: [attendanceSchema],
   createdAt: {
       type: Date,
     default: Date.now

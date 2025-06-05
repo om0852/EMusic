@@ -14,14 +14,6 @@ export async function POST(request) {
       );
     }
 
-    // Validate file type
-    if (file.type !== 'application/pdf') {
-      return NextResponse.json(
-        { message: 'Only PDF files are allowed' },
-        { status: 400 }
-      );
-    }
-
     // Create unique filename
     const uniqueId = uuidv4();
     const fileName = `${uniqueId}-${file.name}`;
@@ -35,6 +27,7 @@ export async function POST(request) {
       access: 'public',
       token: process.env.BLOB_READ_WRITE_TOKEN
     });
+    console.log(url)
 
     return NextResponse.json({ url });
   } catch (error) {

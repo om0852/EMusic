@@ -1,22 +1,28 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/app/utils/db';
-import Batch from '@/app/models/Batch';
-import jwt from 'jsonwebtoken';
+import Assignment from '@/app/models/Assignment';
+import { verifyAdmin } from '@/app/utils/auth';
 
-// Helper function to verify admin role
-const verifyAdmin = async (request) => {
-  const token = request.cookies.get('token')?.value;
-  if (!token) {
-    throw new Error('Not authenticated');
+export async function GET(request, { params }) {
+  try {
+    await connectDB();
+    await verifyAdmin(request);
+
+    const { batchId } = await params;
+
+    const assignments = await Assignment.find({ batchId })
+      .populate('submissions.student', 'name email')
+      .sort({ createdAt: -1 });
+
+    return NextResponse.json({ assignments });
+  } catch (error) {
+    console.error('Error in GET /api/admin/batches/[batchId]/assignments:', error);
+    return NextResponse.json(
+      { error: error.message },
+      { status: error.message.includes('Not') ? 401 : 500 }
+    );
   }
-
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  if (!decoded || decoded.role !== 'admin') {
-    throw new Error('Not authorized');
-  }
-
-  return decoded;
-};
+}
 
 export async function POST(request, { params }) {
   try {
@@ -24,24 +30,27 @@ export async function POST(request, { params }) {
     await verifyAdmin(request);
 
     const { batchId } = params;
-    const assignmentData = await request.json();
+    const data = await request.json();
 
-    const batch = await Batch.findById(batchId);
-    if (!batch) {
-      return NextResponse.json(
-        { message: 'Batch not found' },
-        { status: 404 }
-      );
-    }
+    const assignment = new Assignment({
+      batchId,
+      title: data.title,
+      description: data.description,
+      files: {
+        document: data.files?.document || null,
+        audio: data.files?.audio || null,
+        video: data.files?.video || null
+      },
+      dueDate: data.dueDate
+    });
 
-    batch.assignments.push(assignmentData);
-    await batch.save();
+    await assignment.save();
 
-    return NextResponse.json({ message: 'Assignment added successfully', assignment: assignmentData });
+    return NextResponse.json({ assignment });
   } catch (error) {
-    console.error('Error adding assignment:', error);
+    console.error('Error in POST /api/admin/batches/[batchId]/assignments:', error);
     return NextResponse.json(
-      { message: error.message || 'Internal server error' },
+      { error: error.message },
       { status: error.message.includes('Not') ? 401 : 500 }
     );
   }
@@ -55,16 +64,10 @@ export async function DELETE(request, { params }) {
     const { batchId } = params;
     const { assignmentId } = await request.json();
 
-    const batch = await Batch.findById(batchId);
-    if (!batch) {
-      return NextResponse.json(
-        { message: 'Batch not found' },
-        { status: 404 }
-      );
-    }
-
-    batch.assignments = batch.assignments.filter(assignment => assignment._id.toString() !== assignmentId);
-    await batch.save();
+    await Assignment.findOneAndDelete({
+      _id: assignmentId,
+      batchId
+    });
 
     return NextResponse.json({ message: 'Assignment deleted successfully' });
   } catch (error) {

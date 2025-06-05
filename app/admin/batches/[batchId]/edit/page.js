@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaCalendar, FaClock, FaPlus, FaTrash, FaSave, FaArrowLeft, FaVideo, FaLock, FaUpload, FaBook, FaTasks } from 'react-icons/fa';
 import { Toaster, toast } from 'react-hot-toast';
+import AssignmentSection from '@/app/components/AssignmentSection';
 
 // Common button styles
 const buttonStyles = {
@@ -40,15 +41,11 @@ export default function EditBatchPage({ params }) {
     file: null
   });
 
-  const [assignment, setAssignment] = useState({
-    title: '',
-    description: '',
-    file: null,
-    dueDate: new Date().toISOString().split('T')[0]
-  });
+  const [assignments, setAssignments] = useState([]);
 
   useEffect(() => {
     fetchBatch();
+    fetchAssignments();
   }, [batchId]);
 
   const fetchBatch = async () => {
@@ -72,6 +69,23 @@ export default function EditBatchPage({ params }) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAssignments = async () => {
+    try {
+      const response = await fetch(`/api/admin/batches/${batchId}/assignments`, {
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch assignments');
+      }
+
+      const data = await response.json();
+      setAssignments(data.assignments);
+    } catch (err) {
+      console.error('Error fetching assignments:', err);
     }
   };
 
@@ -196,51 +210,6 @@ export default function EditBatchPage({ params }) {
       await fetchBatch();
       toast.dismiss(loadingToast);
       toast.success('Note added successfully!');
-    } catch (err) {
-      toast.dismiss(loadingToast);
-      toast.error(err.message);
-    }
-  };
-
-  const handleAddAssignment = async () => {
-    if (!assignment.title || !assignment.description || !assignment.dueDate) {
-      toast.error('Please fill in required assignment fields');
-      return;
-    }
-
-    const loadingToast = toast.loading('Adding assignment...');
-    try {
-      let fileUrl = null;
-      if (assignment.file) {
-        fileUrl = await uploadFile(assignment.file);
-      }
-
-      const response = await fetch(`/api/admin/batches/${batchId}/assignments`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...assignment,
-          file: fileUrl
-        }),
-        credentials: 'include'
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to add assignment');
-      }
-
-      setAssignment({
-        title: '',
-        description: '',
-        file: null,
-        dueDate: new Date().toISOString().split('T')[0]
-      });
-
-      await fetchBatch();
-      toast.dismiss(loadingToast);
-      toast.success('Assignment added successfully!');
     } catch (err) {
       toast.dismiss(loadingToast);
       toast.error(err.message);
@@ -554,264 +523,15 @@ export default function EditBatchPage({ params }) {
 
         {/* Assignments Section */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
-          <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900 dark:text-white">
+          <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white flex items-center">
             <FaTasks className="mr-2" />
-            Add Assignment
+            Assignments
           </h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Title
-              </label>
-              <input
-                type="text"
-                value={assignment.title}
-                onChange={(e) => setAssignment({ ...assignment, title: e.target.value })}
-                placeholder="Assignment title"
-                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark transition-colors duration-200"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Due Date
-              </label>
-              <input
-                type="date"
-                value={assignment.dueDate}
-                onChange={(e) => setAssignment({ ...assignment, dueDate: e.target.value })}
-                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark transition-colors duration-200"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Description
-              </label>
-              <textarea
-                value={assignment.description}
-                onChange={(e) => setAssignment({ ...assignment, description: e.target.value })}
-                placeholder="Assignment description"
-                rows={4}
-                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark transition-colors duration-200"
-              />
-              <div className="flex items-center space-x-2 mt-2">
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={(e) => handleFileChange(e, 'file', setAssignment)}
-                  className="hidden"
-                  id="assignmentFile"
-                />
-                <label
-                  htmlFor="assignmentFile"
-                  className={buttonStyles.secondary}
-                >
-                  <FaUpload className="mr-2" />
-                  {assignment.file ? assignment.file.name : 'Upload PDF'}
-                </label>
-              </div>
-            </div>
-
-            <button
-              onClick={handleAddAssignment}
-              className={buttonStyles.primary}
-            >
-              <FaPlus className="mr-2" />
-              Add Assignment
-            </button>
-          </div>
-
-          {/* Previous Assignments */}
-          {batch?.assignments?.length > 0 && (
-            <div className="mt-6">
-              <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Previous Assignments</h3>
-              <div className="space-y-4">
-                {batch.assignments.map((assignment, index) => (
-                  <div key={index} className="border dark:border-gray-700 rounded-md p-4 bg-gray-50 dark:bg-gray-700">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white">{assignment.title}</h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Due: {new Date(assignment.dueDate).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{assignment.description}</p>
-                    {assignment.file && (
-                      <a
-                        href={assignment.file}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary dark:text-primary-dark hover:text-primary-dark dark:hover:text-primary flex items-center mt-2 cursor-pointer transition-colors duration-200"
-                      >
-                        <FaUpload className="mr-2" />
-                        View PDF
-                      </a>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Lecture Content */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
-          <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900 dark:text-white">
-            <FaBook className="mr-2" />
-            Add Lecture Content
-          </h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Date
-              </label>
-              <input
-                type="date"
-                value={assignment.date}
-                onChange={(e) => setAssignment({ ...assignment, date: e.target.value })}
-                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark transition-colors duration-200"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Title
-              </label>
-              <input
-                type="text"
-                value={assignment.title}
-                onChange={(e) => setAssignment({ ...assignment, title: e.target.value })}
-                placeholder="Lecture title"
-                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark transition-colors duration-200"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Notes
-              </label>
-              <textarea
-                value={assignment.notes}
-                onChange={(e) => setAssignment({ ...assignment, notes: e.target.value })}
-                placeholder="Lecture notes"
-                rows={4}
-                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark transition-colors duration-200"
-              />
-              <div className="flex items-center space-x-2 mt-2">
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={(e) => handleFileChange(e, 'notesFile', setAssignment)}
-                  className="hidden"
-                  id="notesFile"
-                />
-                <label
-                  htmlFor="notesFile"
-                  className={buttonStyles.secondary}
-                >
-                  <FaUpload className="mr-2" />
-                  {assignment.notesFile ? assignment.notesFile.name : 'Upload PDF Notes'}
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Assignment
-              </label>
-              <textarea
-                value={assignment.assignment}
-                onChange={(e) => setAssignment({ ...assignment, assignment: e.target.value })}
-                placeholder="Assignment details"
-                rows={4}
-                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark transition-colors duration-200"
-              />
-              <div className="flex items-center space-x-2 mt-2">
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={(e) => handleFileChange(e, 'assignmentFile', setAssignment)}
-                  className="hidden"
-                  id="assignmentFile"
-                />
-                <label
-                  htmlFor="assignmentFile"
-                  className={buttonStyles.secondary}
-                >
-                  <FaUpload className="mr-2" />
-                  {assignment.assignmentFile ? assignment.assignmentFile.name : 'Upload PDF Assignment'}
-                </label>
-              </div>
-            </div>
-
-            <button
-              onClick={handleAddAssignment}
-              className={buttonStyles.primary}
-            >
-              <FaPlus className="mr-2" />
-              Add Lecture
-            </button>
-          </div>
-        </div>
-
-        {/* Previous Lectures */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Previous Lectures</h2>
-          
-          {batch?.lectures?.length > 0 ? (
-            <div className="space-y-4">
-              {batch.lectures.map((lec, index) => (
-                <div key={index} className="border dark:border-gray-700 rounded-md p-4 bg-gray-50 dark:bg-gray-700">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">{lec.title}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {new Date(lec.date).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Notes:</h4>
-                    <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{lec.notes}</p>
-                    {lec.notesFile && (
-                      <a
-                        href={lec.notesFile}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary dark:text-primary-dark hover:text-primary-dark dark:hover:text-primary flex items-center mt-2 cursor-pointer transition-colors duration-200"
-                      >
-                        <FaUpload className="mr-2" />
-                        View Notes PDF
-                      </a>
-                    )}
-                    {lec.assignment && (
-                      <>
-                        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Assignment:</h4>
-                        <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{lec.assignment}</p>
-                        {lec.assignmentFile && (
-                          <a
-                            href={lec.assignmentFile}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary dark:text-primary-dark hover:text-primary-dark dark:hover:text-primary flex items-center mt-2 cursor-pointer transition-colors duration-200"
-                          >
-                            <FaUpload className="mr-2" />
-                            View Assignment PDF
-                          </a>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 dark:text-gray-400 text-center py-4">No lectures added yet</p>
-          )}
+          <AssignmentSection
+            batchId={batchId}
+            assignments={assignments}
+            onUpdate={fetchAssignments}
+          />
         </div>
 
         {/* Error Display */}
