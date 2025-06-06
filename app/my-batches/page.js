@@ -300,12 +300,12 @@ export default function MyBatches() {
 
   const getRandomGradient = () => {
     const gradients = [
-      'from-orange-400 to-orange-500',
-      'from-orange-300 to-orange-400',
-      'from-yellow-400 to-orange-400',
-      'from-orange-200 to-orange-400',
-      'from-red-300 to-orange-400',
-      'from-orange-300 to-yellow-400'
+      'from-orange-400 to-purple-500',
+      'from-blue-400 to-orange-400',
+      'from-teal-400 to-orange-400',
+      'from-orange-400 to-pink-400',
+      'from-indigo-400 to-orange-400',
+      'from-orange-400 to-cyan-400'
     ];
     return gradients[Math.floor(Math.random() * gradients.length)];
   };
@@ -349,67 +349,63 @@ export default function MyBatches() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-white py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-orange-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-orange-600 flex items-center">
-            <FaGraduationCap className="mr-3" />
+          <h1 className="text-3xl font-bold text-orange-600 flex items-center">
+            <FaGraduationCap className="mr-3 text-indigo-500" />
             My Learning Journey
           </h1>
         </div>
 
         {batches.length === 0 ? (
-          <div className="bg-white shadow-md p-6 rounded-lg text-center">
-            <p className="text-gray-500 dark:text-orange-600">You are not enrolled in any batches yet.</p>
+          <div className="bg-white shadow-lg p-6 rounded-lg text-center border border-orange-100">
+            <p className="text-gray-600">You are not enrolled in any batches yet.</p>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {batches.map((batch) => (
-              <div key={batch._id} className="group relative bg-white shadow-md rounded-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div key={batch._id} className="group relative bg-white shadow-lg rounded-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-orange-100">
                 <div className={`h-3 bg-gradient-to-r ${getRandomGradient()}`} />
                 <div className="p-6">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{batch.subject.name}</h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{batch.level.name}</p>
+                      <h2 className="text-xl font-semibold text-indigo-600">{batch.subject.name}</h2>
+                      <p className="text-sm text-teal-600 mt-1">{batch.level.name}</p>
                     </div>
                     <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                      batch.status === 'Active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' :
-                      batch.status === 'Completed' ? 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-400' :
-                      batch.status === 'Cancelled' ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400' :
-                      'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400'
+                      batch.status === 'Active' ? 'bg-green-100 text-green-700 border border-green-200' :
+                      batch.status === 'Completed' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
+                      batch.status === 'Cancelled' ? 'bg-red-100 text-red-700 border border-red-200' :
+                      'bg-orange-100 text-orange-700 border border-orange-200'
                     }`}>
                       {batch.status}
                     </span>
                   </div>
 
                   <div className="mt-4 space-y-3">
-                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                      <FaCalendar className="mr-2" />
+                    <div className="flex items-center text-sm text-purple-600">
+                      <FaCalendar className="mr-2 text-purple-500" />
                       <span>{formatDate(batch.startDate)} - {formatDate(batch.endDate)}</span>
                     </div>
 
-                  
-
-                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                      <FaUsers className="mr-2" />
+                    <div className="flex items-center text-sm text-cyan-600">
+                      <FaUsers className="mr-2 text-cyan-500" />
                       <span>
                         {batch.students.length} / {batch.maxStudents} students
                       </span>
                     </div>
-
-                  
                   </div>
 
                   <div className="mt-6">
                     <div className="flex justify-between items-center">
                       <div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">{batch.subscription}</span>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-white">₹{batch.price}/month</p>
+                        <span className="text-sm text-gray-600">{batch.subscription}</span>
+                        <p className="text-lg font-semibold text-orange-600">₹{batch.price}/month</p>
                       </div>
                       <button
                         onClick={() => setSelectedBatch(batch)}
-                        className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors flex items-center cursor-pointer"
+                        className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-md transition-all duration-300 flex items-center cursor-pointer shadow-md hover:shadow-lg"
                       >
                         <FaInfoCircle className="mr-2" />
                         View Details

@@ -140,13 +140,13 @@ export default function EClassPage() {
             </div>
 
             {/* Course Progress */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-xl font-semibold text-[#1A1A1A] mb-4">Your Progress</h3>
               <div className="w-full bg-gray-200 rounded-full h-2.5">
                 <div className="bg-[#009688] h-2.5 rounded-full" style={{ width: '45%' }}></div>
               </div>
               <p className="text-sm text-gray-600 mt-2">45% complete</p>
-            </div>
+            </div> */}
           </div>
         )}
       </div>
