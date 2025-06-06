@@ -85,7 +85,7 @@ export async function POST(request) {
     const level = await LevelTypeModel.create(levelData);
     return NextResponse.json({ data: level }, { status: 201 });
   } catch (error) {
-    console.log(error);
+    //console.log(error);
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }

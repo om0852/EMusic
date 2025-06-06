@@ -190,9 +190,15 @@ export default function SchedulePage() {
     const sessionEnd = new Date(session.date);
     sessionEnd.setHours(endHours, endMinutes, 0, 0);
 
+    // Calculate 10 minutes before session start
+    const joinTime = new Date(sessionStart);
+    joinTime.setMinutes(joinTime.getMinutes() - 10);
+
     if (now >= sessionStart && now <= sessionEnd) {
       return 'active';
-    } else if (now < sessionStart) {
+    } else if (now >= joinTime && now < sessionStart) {
+      return 'joining';
+    } else if (now < joinTime) {
       return 'upcoming';
     } else {
       return 'ended';
@@ -203,10 +209,23 @@ export default function SchedulePage() {
     switch (status) {
       case 'active':
         return 'bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700';
+      case 'joining':
+        return 'bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700';
       case 'upcoming':
         return 'bg-orange-500 hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700';
       default:
         return 'bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700';
+    }
+  };
+
+  const getJoinButtonText = (status) => {
+    switch (status) {
+      case 'active':
+        return 'Join Now';
+      case 'joining':
+        return 'Join Early';
+      default:
+        return 'Join Meeting';
     }
   };
 
@@ -350,7 +369,7 @@ export default function SchedulePage() {
                               className={`inline-flex items-center px-3 py-1.5 text-white rounded-md transition-colors duration-200 ${getButtonStyles(status)}`}
                             >
                               <FaVideo className="mr-1.5" />
-                              {status === 'active' ? 'Join Now' : 'Join Meeting'}
+                              {getJoinButtonText(status)}
                             </a>
                           )}
                           {!isCancelled && (

@@ -15,7 +15,9 @@ export async function GET(request) {
       .lean();
 
     // Process each student to get their batch information
-    const studentsWithBatches = await Promise.all(students.map(async (student) => {
+    let studentsWithBatches = [];
+
+    for (const student of students) {
       // Find all batches where this student is enrolled
       const studentBatches = await Batch.find({
         'students.userId': student._id,
@@ -26,32 +28,37 @@ export async function GET(request) {
       .select('subject level price subscription students')
       .lean();
 
-      // Calculate total paid
-      const totalPaid = studentBatches.reduce((sum, batch) => sum + (batch.price || 0), 0);
-
-      // Format batch data
-      const formattedBatches = studentBatches.map(batch => {
+      // Create separate entries for each batch
+      for (const batch of studentBatches) {
         // Find student's specific subscription data from the batch
         const studentData = batch.students.find(s => 
           s.userId.toString() === student._id.toString()
         );
 
-        return {
-          _id: batch._id,
-          subject: batch.subject,
-          level: batch.level,
-          subscription: batch.subscription,
-          joinedAt: studentData?.joinedAt,
-          price: batch.price
-        };
-      });
+        studentsWithBatches.push({
+          _id: `${student._id}-${batch._id}`, // Create unique ID for each student-batch combination
+          studentId: student._id,
+          name: student.name,
+          email: student.email,
+          batch: {
+            _id: batch._id,
+            subject: batch.subject,
+            level: batch.level,
+            subscription: batch.subscription,
+            joinedAt: studentData?.joinedAt,
+            price: batch.price
+          }
+        });
+      }
+    }
 
-      return {
-        ...student,
-        batches: formattedBatches,
-        totalPaid
-      };
-    }));
+    // Sort by student name and then by subject name
+    studentsWithBatches.sort((a, b) => {
+      if (a.name === b.name) {
+        return a.batch.subject.name.localeCompare(b.batch.subject.name);
+      }
+      return a.name.localeCompare(b.name);
+    });
 
     return NextResponse.json({ students: studentsWithBatches });
   } catch (error) {

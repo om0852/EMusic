@@ -28,6 +28,7 @@ export async function GET(request) {
 
     // Get current date at start of day
     const today = new Date();
+    const now = new Date(); // Current time for filtering today's sessions
     today.setHours(0, 0, 0, 0);
 
     // Get all active batches
@@ -49,8 +50,12 @@ export async function GET(request) {
       
       sortedSchedule.forEach(schedule => {
         const scheduleDate = new Date(schedule.date);
-        // Only include sessions that are today or in the future
-        if (scheduleDate >= today) {
+        const [hours, minutes] = schedule.startTime.split(':').map(Number);
+        const sessionDateTime = new Date(scheduleDate);
+        sessionDateTime.setHours(hours, minutes, 0, 0);
+
+        // Only include sessions that are in the future or haven't ended yet today
+        if (sessionDateTime >= now) {
           sessions.push({
             _id: `${batch._id}-${schedule.date}-${schedule.startTime}`,
             batchId: batch._id,

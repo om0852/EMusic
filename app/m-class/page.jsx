@@ -125,7 +125,7 @@ export default function MClassPage() {
         selectedPlan.discount
       );
 
-      console.log('Initiating payment for amount:', amount);
+      //console.log('Initiating payment for amount:', amount);
 
       // Create order
       const orderResponse = await fetch('/api/payment', {
@@ -145,7 +145,7 @@ export default function MClassPage() {
         throw new Error(`Failed to create order: ${orderData.error || orderData.details || 'Unknown error'}`);
       }
 
-      console.log('Order created successfully:', orderData);
+      //console.log('Order created successfully:', orderData);
 
       // Load Razorpay SDK
       const res = await loadRazorpay();
@@ -168,7 +168,7 @@ export default function MClassPage() {
         order_id: orderData.orderId,
         handler: async (response) => {
           try {
-            console.log('Payment successful:', response);
+            //console.log('Payment successful:', response);
 
             // Create batch after successful payment
             const batchData = {
@@ -191,7 +191,7 @@ export default function MClassPage() {
               orderId: response.razorpay_order_id,
             };
 
-            console.log('Creating batch with data:', batchData);
+            //console.log('Creating batch with data:', batchData);
 
             const batchResponse = await fetch('/api/batch', {
               method: 'POST',
@@ -228,7 +228,7 @@ export default function MClassPage() {
         },
       };
 
-      console.log('Initializing Razorpay with options:', { ...options, key: '***' });
+      //console.log('Initializing Razorpay with options:', { ...options, key: '***' });
 
       const paymentObject = new window.Razorpay(options);
       paymentObject.open();

@@ -35,9 +35,9 @@ export default function Navbar() {
       if (response.ok) {
         const data = await response.json();
         setIsLoggedIn(true);
-        console.log(data)
+        //console.log(data)
         setUser(data.user);
-        console.log(data.user)
+        //console.log(data.user)
       } else {
         setIsLoggedIn(false);
         setUser(null);

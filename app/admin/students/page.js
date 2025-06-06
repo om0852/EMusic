@@ -93,13 +93,13 @@ export default function StudentsPage() {
                     Student
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Subjects & Levels
+                    Subject & Level
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Subscription Details
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Total Paid
+                    Monthly Fee
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Actions
@@ -107,74 +107,7 @@ export default function StudentsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {students.map((student) => (
-                  <tr key={student._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <FaUser className="mr-3 text-gray-400" />
-                        <div>
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {student.name}
-                          </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {student.email}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-2">
-                        {student.batches.map((batch) => (
-                          <div key={batch._id} className="flex items-center space-x-2">
-                            <FaBook className="text-gray-400" />
-                            <span className="text-sm text-gray-900 dark:text-white">
-                              {batch.subject.name}
-                            </span>
-                            <FaGraduationCap className="text-gray-400" />
-                            <span className="text-sm text-gray-900 dark:text-white">
-                              {batch.level.name}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-2">
-                        {student.batches.map((batch) => (
-                          <div key={batch._id} className="space-y-1">
-                            <div className="flex items-center">
-                              <FaCreditCard className="mr-2 text-gray-400" />
-                              <span className="text-sm text-gray-900 dark:text-white">
-                                {batch.subscription}
-                              </span>
-                            </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 pl-6">
-                              ${batch.price} • Joined {formatDate(batch.joinedAt)}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 dark:text-white">
-                        ${student.totalPaid || 0}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => {
-                          setSelectedStudent(student);
-                          setIsModalOpen(true);
-                        }}
-                        className="inline-flex items-center px-3 py-1.5 text-primary dark:text-primary-dark hover:bg-primary/10 dark:hover:bg-primary-dark/10 rounded-md transition-colors duration-200"
-                      >
-                        <FaCalendarCheck className="mr-1.5" />
-                        View Attendance
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {students.length === 0 && (
+                {students.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="px-6 py-12 text-center">
                       <FaUser className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 mb-4" />
@@ -186,6 +119,73 @@ export default function StudentsPage() {
                       </p>
                     </td>
                   </tr>
+                ) : (
+                  students.map((student) => (
+                    <tr key={student._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <FaUser className="mr-3 text-gray-400" />
+                          <div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                              {student.name}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                              {student.email}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className=" items-center space-x-2">
+                          <div className='flex items-center space-x-2'>
+
+                          <FaBook className="text-gray-400" />
+                          <span className="text-sm text-gray-900 dark:text-white">
+                            {student.batch.subject.name}
+                          </span>
+                          </div>
+                            <br/>
+                            <div className='flex items-center space-x-2'>
+
+                          <FaGraduationCap className="text-gray-400" />
+                          <span className="text-sm text-gray-900 dark:text-white">
+                            {student.batch.level.name}
+                          </span>
+                            </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="space-y-1">
+                          <div className="flex items-center">
+                            <FaCreditCard className="mr-2 text-gray-400" />
+                            <span className="text-sm text-gray-900 dark:text-white">
+                              {student.batch.subscription}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 pl-6">
+                            Joined {formatDate(student.batch.joinedAt)}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900 dark:text-white">
+                          ₹{student.batch.price.toLocaleString('en-IN')}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <button
+                          onClick={() => {
+                            setSelectedStudent({ ...student, _id: student.studentId });
+                            setIsModalOpen(true);
+                          }}
+                          className="inline-flex items-center px-3 py-1.5 text-primary dark:text-primary-dark hover:bg-primary/10 dark:hover:bg-primary-dark/10 rounded-md transition-colors duration-200"
+                        >
+                          <FaCalendarCheck className="mr-1.5" />
+                          View Attendance
+                        </button>
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>

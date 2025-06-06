@@ -32,6 +32,7 @@ export default function MyBatches() {
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [submissionFile, setSubmissionFile] = useState(null);
   const [activeTab, setActiveTab] = useState('sessions');
+  const [selectedPdf, setSelectedPdf] = useState(null);
 
   useEffect(() => {
     fetchBatches();
@@ -97,7 +98,7 @@ export default function MyBatches() {
         return sessionDate < now;
       });
 
-      console.log('Upcoming sessions:', upcoming); // Add this for debugging
+      //console.log('Upcoming sessions:', upcoming); // Add this for debugging
       setUpcomingSessions(upcoming);
       setCompletedSessions(completed);
     } catch (err) {
@@ -255,10 +256,10 @@ export default function MyBatches() {
     endTime.setHours(parseInt(endHours), parseInt(endMinutes), 0, 0);
 
     // Debug logs
-    console.log('Now:', now);
-    console.log('Join time:', joinTime);
-    console.log('Session time:', sessionDate);
-    console.log('End time:', endTime);
+    //console.log('Now:', now);
+    //console.log('Join time:', joinTime);
+    //console.log('Session time:', sessionDate);
+    //console.log('End time:', endTime);
     
     return now >= joinTime && now <= endTime;
   };
@@ -421,342 +422,266 @@ export default function MyBatches() {
         {/* Batch Details Modal */}
         {selectedBatch && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white dark:bg-orange-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-200">
               <div className="p-6">
                 <div className="flex justify-between items-start mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{selectedBatch.subject.name} - {selectedBatch.level.name}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    <span className="text-indigo-600">{selectedBatch.subject.name}</span>
+                    <span className="mx-2 text-gray-400">-</span>
+                    <span className="text-teal-600">{selectedBatch.level.name}</span>
+                  </h2>
                   <button
                     onClick={() => setSelectedBatch(null)}
-                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    ×
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                   </button>
                 </div>
 
                 {/* Tab Navigation */}
-                <div className="flex space-x-4 mb-6 border-b dark:border-gray-700">
+                <div className="flex space-x-4 mb-6 border-b border-gray-200">
                   <button
                     onClick={() => setActiveTab('sessions')}
-                    className={`pb-2 px-1 cursor-pointer ${activeTab === 'sessions' ? 
-                      'border-b-2 border-orange-500 text-orange-500' : 
-                      'text-gray-500 dark:text-gray-400'}`}
+                    className={`pb-2 px-1 cursor-pointer transition-all duration-300 ${activeTab === 'sessions' ? 
+                      'border-b-2 border-indigo-500 text-indigo-600 font-semibold' : 
+                      'text-gray-500 hover:text-indigo-500'}`}
                   >
-                    <FaVideo className="inline mr-2" />
+                    <FaVideo className={`inline mr-2 ${activeTab === 'sessions' ? 'text-indigo-500' : 'text-gray-400'}`} />
                     Sessions
                   </button>
                   <button
                     onClick={() => setActiveTab('assignments')}
-                    className={`pb-2 px-1 cursor-pointer ${activeTab === 'assignments' ? 
-                      'border-b-2 border-orange-500 text-orange-500' : 
-                      'text-gray-500 dark:text-gray-400'}`}
+                    className={`pb-2 px-1 cursor-pointer transition-all duration-300 ${activeTab === 'assignments' ? 
+                      'border-b-2 border-teal-500 text-teal-600 font-semibold' : 
+                      'text-gray-500 hover:text-teal-500'}`}
                   >
-                    <FaTasks className="inline mr-2" />
+                    <FaTasks className={`inline mr-2 ${activeTab === 'assignments' ? 'text-teal-500' : 'text-gray-400'}`} />
                     Assignments
                   </button>
                   <button
                     onClick={() => setActiveTab('notes')}
-                    className={`pb-2 px-1 cursor-pointer ${activeTab === 'notes' ? 
-                      'border-b-2 border-orange-500 text-orange-500' : 
-                      'text-gray-500 dark:text-gray-400'}`}
+                    className={`pb-2 px-1 cursor-pointer transition-all duration-300 ${activeTab === 'notes' ? 
+                      'border-b-2 border-purple-500 text-purple-600 font-semibold' : 
+                      'text-gray-500 hover:text-purple-500'}`}
                   >
-                    <FaBook className="inline mr-2" />
+                    <FaBook className={`inline mr-2 ${activeTab === 'notes' ? 'text-purple-500' : 'text-gray-400'}`} />
                     Notes
                   </button>
                 </div>
 
-                {/* Sessions Tab */}
-                {activeTab === 'sessions' && (
-                  <>
-                    {/* Upcoming Sessions */}
-                    <div className="mb-6">
-                      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
-                        <FaVideo className="mr-2" />
-                        Upcoming Sessions
-                      </h3>
-                      <div className="space-y-4">
-                        {upcomingSessions.map((session) => (
-                          <div key={session._id} className="bg-gray-50 dark:bg-orange-700 p-4 rounded-lg">
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <p className="font-medium text-gray-900 dark:text-white">
-                                  {formatDate(session.date)}
-                                </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {formatTime(session.startTime)} - {formatTime(session.endTime)}
-                                </p>
-                                <p className={`text-sm mt-1 ${
-                                  getSessionStatus(session).includes('Progress') || getSessionStatus(session).includes('Join Now')
-                                    ? 'text-green-500 dark:text-green-400' 
-                                    : 'text-gray-500 dark:text-gray-400'
-                                }`}>
-                                  {getSessionStatus(session)}
-                                </p>
-                              </div>
-                              {session.meetLink && (
-                                <div>
-                                  {canJoinSession(session) ? (
-                                    <a
-                                      href={session.meetLink}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className={`px-4 py-2 cursor-pointer ${
-                                        new Date() >= new Date(session.date) ? 'bg-orange-500 hover:bg-orange-600' : 'bg-orange-500 hover:bg-orange-600'
-                                      } text-white rounded-md transition-colors flex items-center`}
-                                    >
-                                      <FaVideo className="mr-2" />
-                                      {new Date() >= new Date(session.date) ? 'Join Now' : 'Join Early'}
-                                    </a>
-                                  ) : (
+                {/* Content sections */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  {/* Sessions Tab */}
+                  {activeTab === 'sessions' && (
+                    <>
+                      {/* Upcoming Sessions */}
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold mb-4 text-gray-900 flex items-center">
+                          <FaVideo className="mr-2 text-indigo-500" />
+                          Upcoming Sessions
+                        </h3>
+                        <div className="space-y-4">
+                          {upcomingSessions.map((session) => {
+                            const now = new Date();
+                            const sessionDate = new Date(session.date);
+                            const [hours, minutes] = session.startTime.split(':');
+                            sessionDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+                            
+                            const joinTime = new Date(sessionDate);
+                            joinTime.setMinutes(joinTime.getMinutes() - 10);
+
+                            const endTime = new Date(sessionDate);
+                            const [endHours, endMinutes] = session.endTime.split(':');
+                            endTime.setHours(parseInt(endHours), parseInt(endMinutes), 0, 0);
+
+                            const canJoin = now >= joinTime && now <= endTime;
+                            const sessionStatus = getSessionStatus(session);
+                            const isActive = sessionStatus.includes('Progress') || sessionStatus.includes('Join Now');
+
+                            return (
+                              <div key={session._id} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:border-indigo-200 transition-colors">
+                                <div className="flex justify-between items-center">
+                                  <div>
+                                    <p className="font-medium text-gray-900">
+                                      {formatDate(session.date)}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                      {formatTime(session.startTime)} - {formatTime(session.endTime)}
+                                    </p>
+                                    <p className={`text-sm mt-1 ${
+                                      isActive ? 'text-green-500' : 'text-gray-500'
+                                    }`}>
+                                      {sessionStatus}
+                                    </p>
+                                  </div>
+                                  {session.meetLink && (
                                     <button
-                                      disabled
-                                      className="px-4 py-2 bg-gray-300 dark:bg-orange-600 text-gray-500 dark:text-gray-400 rounded-md cursor-not-allowed flex items-center"
+                                      onClick={() => {
+                                        const meetLink = session.meetLink.startsWith('http') 
+                                          ? session.meetLink 
+                                          : `https://${session.meetLink}`;
+                                        window.open(meetLink, '_blank');
+                                      }}
+                                      disabled={!canJoin}
+                                      className={`px-4 py-2 rounded-md transition-all duration-300 flex items-center ${
+                                        canJoin 
+                                          ? 'bg-indigo-500 hover:bg-indigo-600 text-white cursor-pointer' 
+                                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                      }`}
                                     >
                                       <FaVideo className="mr-2" />
-                                      Join Meeting
+                                      {canJoin ? (
+                                        now >= sessionDate ? 'Join Now' : 'Join Early'
+                                      ) : (
+                                        'Join Meeting'
+                                      )}
                                     </button>
                                   )}
                                 </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                        {upcomingSessions.length === 0 && (
-                          <p className="text-gray-500 dark:text-gray-400 text-center py-4">
-                            No upcoming sessions for today or tomorrow
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Completed Sessions */}
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
-                        <FaHistory className="mr-2" />
-                        Completed Sessions
-                      </h3>
-                      <div className="space-y-4">
-                        {completedSessions.map((session) => (
-                          <div key={session._id} className="bg-gray-50 dark:bg-orange-700 p-4 rounded-lg">
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <p className="font-medium text-gray-900 dark:text-white">
-                                  {formatDate(session.date)}
-                                </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {formatTime(session.startTime)} - {formatTime(session.endTime)}
-                                </p>
                               </div>
-                              {session.recordingUrl && (
-                                <a
-                                  href={session.recordingUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="px-4 py-2 bg-primary dark:bg-primary-dark text-black dark:text-white rounded-md hover:bg-primary-dark dark:hover:bg-primary transition-colors flex items-center"
-                                >
-                                  <FaVideo className="mr-2" />
-                                  Watch Recording
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                        {completedSessions.length === 0 && (
-                          <p className="text-gray-500 dark:text-gray-400 text-center py-4">
-                            No completed sessions yet
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {/* Assignments Tab */}
-                {activeTab === 'assignments' && (
-                  <div className="space-y-6">
-                    {assignments.map((assignment) => (
-                      <div key={assignment._id} className="bg-gray-50 dark:bg-orange-700 p-6 rounded-lg">
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
-                              {assignment.title}
-                            </h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                              Due: {formatDate(assignment.dueDate)}
+                            );
+                          })}
+                          {upcomingSessions.length === 0 && (
+                            <p className="text-gray-500 text-center py-4">
+                              No upcoming sessions scheduled
                             </p>
-                          </div>
-                          <div className="flex space-x-2">
-                            {assignment.files?.document && (
-                              <a
-                                href={assignment.files.document}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded flex items-center text-sm transition-colors cursor-pointer"
-                              >
-                                <FaDownload className="mr-2" />
-                                Document
-                              </a>
-                            )}
-                            {assignment.files?.audio && (
-                              <a
-                                href={assignment.files.audio}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded flex items-center text-sm transition-colors cursor-pointer"
-                              >
-                                <FaDownload className="mr-2" />
-                                Audio
-                              </a>
-                            )}
-                            {assignment.files?.video && (
-                              <a
-                                href={assignment.files.video}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded flex items-center text-sm transition-colors cursor-pointer"
-                              >
-                                <FaDownload className="mr-2" />
-                                Video
-                              </a>
-                            )}
-                          </div>
+                          )}
                         </div>
+                      </div>
 
-                        <p className="text-gray-700 dark:text-gray-300 mb-4">
-                          {assignment.description}
-                        </p>
-
-                        {/* Submission Section */}
-                        <div className="border-t dark:border-gray-600 pt-4 mt-4">
-                          <h5 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                            Your Submission
-                          </h5>
-                          {assignment.submissions?.some(s => s.student === user?.userId) ? (
-                            <div className="space-y-4">
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-500 dark:text-gray-400">
-                                  Submitted on {formatDate(assignment.submissions.find(s => s.student === user?.userId).submittedAt)}
-                                </span>
-                                <a
-                                  href={assignment.submissions.find(s => s.student === user?.userId).file}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-primary dark:text-primary-dark hover:underline flex items-center"
-                                >
-                                  <FaDownload className="mr-1" />
-                                  View Submission
-                                </a>
-                              </div>
-
-                              {/* Feedback Section */}
-                              <div className="space-y-3">
-                                <h6 className="text-sm font-semibold text-gray-900 dark:text-white">
-                                  Feedback
-                                </h6>
-                                {assignment.submissions.find(s => s.student === user?.userId).feedback?.map((f, i) => (
-                                  <div key={i} className="bg-white dark:bg-orange-600 p-3 rounded">
-                                    <p className="text-sm text-gray-700 dark:text-gray-300">
-                                      {f.content}
-                                    </p>
-                                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                                      {formatDate(f.createdAt)}
-                                    </span>
-                                  </div>
-                                ))}
-                                
-                                {/* Add Feedback */}
-                                <div className="flex space-x-2">
-                                  <input
-                                    type="text"
-                                    value={feedback}
-                                    onChange={(e) => setFeedback(e.target.value)}
-                                    placeholder="Write your feedback..."
-                                    className="flex-1 px-3 py-2 border rounded-md dark:bg-orange-700 dark:border-orange-600 dark:text-white"
-                                  />
-                                  <button
-                                    onClick={() => handleAddFeedback(assignment._id)}
-                                    className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors flex items-center cursor-pointer"
-                                  >
-                                    <FaPaperPlane className="mr-2" />
-                                    Send
-                                  </button>
+                      {/* Completed Sessions */}
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4 text-gray-900 flex items-center">
+                          <FaHistory className="mr-2 text-teal-500" />
+                          Completed Sessions
+                        </h3>
+                        <div className="space-y-4">
+                          {completedSessions.map((session) => (
+                            <div key={session._id} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <p className="font-medium text-gray-900">
+                                    {formatDate(session.date)}
+                                  </p>
+                                  <p className="text-sm text-gray-500">
+                                    {formatTime(session.startTime)} - {formatTime(session.endTime)}
+                                  </p>
                                 </div>
+                                {session.recordingUrl && (
+                                  <a
+                                    href={session.recordingUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-md transition-colors flex items-center"
+                                  >
+                                    <FaVideo className="mr-2" />
+                                    Watch Recording
+                                  </a>
+                                )}
                               </div>
                             </div>
-                          ) : (
-                            <div className="space-y-3">
-                              <div className="flex items-center space-x-2">
-                                <input
-                                  type="file"
-                                  onChange={(e) => setSubmissionFile(e.target.files[0])}
-                                  className="hidden"
-                                  id={`submission-${assignment._id}`}
-                                />
-                                <label
-                                  htmlFor={`submission-${assignment._id}`}
-                                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center"
-                                >
-                                  <FaUpload className="mr-2" />
-                                  {submissionFile ? submissionFile.name : 'Choose File'}
-                                </label>
-                                <button
-                                  onClick={() => handleSubmitAssignment(assignment._id)}
-                                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors flex items-center cursor-pointer"
-                                >
-                                  <FaPaperPlane className="mr-2" />
-                                  Submit
-                                </button>
-                              </div>
-                            </div>
-                          )}
+                          ))}
                         </div>
                       </div>
-                    ))}
-                    {assignments.length === 0 && (
-                      <p className="text-center text-gray-500 dark:text-gray-400 py-4">
-                        No assignments available yet
-                      </p>
-                    )}
-                  </div>
-                )}
+                    </>
+                  )}
 
-                {/* Notes Tab */}
-                {activeTab === 'notes' && (
-                  <div className="space-y-6">
-                    {notes.map((note) => (
-                      <div key={note._id} className="bg-gray-50 dark:bg-orange-700 p-6 rounded-lg">
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
-                              {note.title}
-                            </h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                              {formatDate(note.createdAt)}
-                            </p>
+                  {/* Assignments Tab */}
+                  {activeTab === 'assignments' && (
+                    <div className="space-y-6">
+                      {assignments.map((assignment) => (
+                        <div key={assignment._id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <h4 className="text-lg font-semibold text-gray-900">
+                                {assignment.title}
+                              </h4>
+                              <p className="text-sm text-gray-500 mt-1">
+                                Due: {formatDate(assignment.dueDate)}
+                              </p>
+                            </div>
+                            <div className="flex space-x-2">
+                              {assignment.files?.document && (
+                                <a
+                                  href={assignment.files.document}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="px-3 py-1 bg-teal-500 hover:bg-teal-600 text-white rounded flex items-center text-sm transition-colors"
+                                >
+                                  <FaDownload className="mr-2" />
+                                  Document
+                                </a>
+                              )}
+                            </div>
                           </div>
-                          {note.file && (
-                            <a
-                              href={note.file}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded flex items-center text-sm transition-colors cursor-pointer"
-                            >
-                              <FaDownload className="mr-2" />
-                              Download PDF
-                            </a>
-                          )}
+                          <p className="text-gray-700 mb-4">
+                            {assignment.description}
+                          </p>
                         </div>
-                        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                          {note.content}
-                        </p>
-                      </div>
-                    ))}
-                    {notes.length === 0 && (
-                      <p className="text-center text-gray-500 dark:text-gray-400 py-4">
-                        No notes available yet
-                      </p>
-                    )}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Notes Tab */}
+                  {activeTab === 'notes' && (
+                    <div className="space-y-6">
+                      {notes.map((note) => (
+                        <div key={note._id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <h4 className="text-lg font-semibold text-gray-900">
+                                {note.title}
+                              </h4>
+                              
+                            </div>
+                            {note.file && (
+                              <button
+                                onClick={() => setSelectedPdf(note)}
+                                className="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white rounded flex items-center text-sm transition-colors"
+                              >
+                                <FaBook className="mr-2" />
+                                View PDF
+                              </button>
+                            )}
+                          </div>
+                          <p className="text-gray-700 whitespace-pre-wrap">
+                            {note.content}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* PDF Viewer Modal */}
+        {selectedPdf && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60]">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden">
+              <div className="flex justify-between items-center p-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {selectedPdf.title}
+                </h3>
+                <button
+                  onClick={() => setSelectedPdf(null)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="relative w-full h-[80vh]">
+                <iframe
+                  src={`${selectedPdf.file}#toolbar=0&navpanes=0&scrollbar=0`}
+                  className="absolute inset-0 w-full h-full"
+                  title={selectedPdf.title}
+                />
               </div>
             </div>
           </div>
