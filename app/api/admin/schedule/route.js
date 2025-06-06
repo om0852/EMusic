@@ -4,6 +4,9 @@ const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/app/utils/db';
 import Batch from '@/app/models/Batch';
+import Subject from '@/app/models/Subject';
+import Level from '@/app/models/Level';
+import User from '@/app/models/User';
 import jwt from 'jsonwebtoken';
 
 // Helper function to verify admin role
@@ -85,10 +88,11 @@ export async function GET(request) {
 
     return NextResponse.json({ sessions });
   } catch (error) {
-    console.error('Error in GET /api/admin/schedule:', error);
-    return NextResponse.json({ error: error.message }, { 
-      status: error.message.includes('Not') ? 401 : 500 
-    });
+    console.error('Error in schedule GET:', error);
+    return NextResponse.json(
+      { message: error.message || 'Internal server error' },
+      { status: error.message.includes('Not') ? 401 : 500 }
+    );
   }
 }
 

@@ -22,7 +22,7 @@ const levelSchema = new mongoose.Schema({
   },
   subject:{
     type: mongoose.Schema.Types.ObjectId,
-    ref: "subjects",
+    ref: "Subject",
     required: true
   },
   schedule: [{

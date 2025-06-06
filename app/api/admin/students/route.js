@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/app/utils/db';
 import User from '@/app/models/User';
 import Batch from '@/app/models/Batch';
+import Subject from '@/app/models/Subject';
+import Level from '@/app/models/Level';
 import { verifyAdmin } from '@/app/utils/auth';
 
 export async function GET(request) {
@@ -62,9 +64,9 @@ export async function GET(request) {
 
     return NextResponse.json({ students: studentsWithBatches });
   } catch (error) {
-    console.error('Error in GET /api/admin/students:', error);
+    console.error('Error in admin students GET:', error);
     return NextResponse.json(
-      { error: error.message },
+      { message: error.message || 'Internal server error' },
       { status: error.message.includes('Not') ? 401 : 500 }
     );
   }

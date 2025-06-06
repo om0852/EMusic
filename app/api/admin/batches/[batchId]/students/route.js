@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/app/utils/db';
 import Batch from '@/app/models/Batch';
 import User from '@/app/models/User';
+import Subject from '@/app/models/Subject';
+import Level from '@/app/models/Level';
 import { verifyAdmin } from '@/app/utils/auth';
 
 export async function GET(request, { params }) {
@@ -29,13 +31,11 @@ export async function GET(request, { params }) {
     }
     let arr=[]
     for(let i=0;i<batch.students.length;i++){
-
       const userData =await User.findById(batch.students[i].userId);
       arr.push(userData)
     }
 
     // Extract students from the populated batch
-
     return NextResponse.json({ students:arr });
   } catch (error) {
     console.error('Error in GET /api/admin/batches/[batchId]/students:', error);

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const LevelTypeSchema = new mongoose.Schema({
   subject: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "subjects",
+    ref: "Subject",
     required: true,
   },
   name: {
@@ -36,5 +36,5 @@ const LevelTypeSchema = new mongoose.Schema({
 });
 
 
-const LevelTypeModel = mongoose.models.levels || mongoose.model("levels",LevelTypeSchema);
+const LevelTypeModel = mongoose.models.levels || mongoose.model("levels", LevelTypeSchema);
 export default LevelTypeModel;

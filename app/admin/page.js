@@ -1,7 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
-
+import { useRouter } from 'next/navigation';
 export default function AdminDashboard() {
+  const router =useRouter();
   const [stats, setStats] = useState({
     totalSubjects: 0,
     totalStudents: 0,
@@ -12,6 +13,26 @@ export default function AdminDashboard() {
   // In a real application, you would fetch these stats from your API
   useEffect(() => {
     // Fetch dashboard stats
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/check', {
+          credentials: 'include'
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if(data.user.role === 'admin'){
+            router.push('/admin');
+          }
+          else{
+            router.push('/');
+          }
+
+        } 
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      }
+      };
+checkAuth();  
   }, [])
 
   const StatCard = ({ title, value, icon }) => (

@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/app/utils/db';
 import Batch from '@/app/models/Batch';
+import Subject from '@/app/models/Subject';
+import Level from '@/app/models/Level';
+import User from '@/app/models/User';
 import jwt from 'jsonwebtoken';
 
 export async function GET(req) {
