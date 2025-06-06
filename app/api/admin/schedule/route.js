@@ -1,3 +1,6 @@
+// Define days array at the top
+const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/app/utils/db';
 import Batch from '@/app/models/Batch';
@@ -27,15 +30,6 @@ export async function GET(request) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Get tomorrow's date
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    // Get current time for comparing with session times
-    const now = new Date();
-    const currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
-                       now.getMinutes().toString().padStart(2, '0');
-
     // Get all active batches
     const batches = await Batch.find({
       status: 'Active',
@@ -50,15 +44,15 @@ export async function GET(request) {
     const sessions = [];
 
     for (const batch of batches) {
-      batch.schedule.forEach(schedule => {
-        const todayDay = today.getDay();
-        const tomorrowDay = tomorrow.getDay();
-        const scheduleDay = days.indexOf(schedule.day);
-
-        // Check if session is for today and hasn't ended
-        if (todayDay === scheduleDay && schedule.endTime > currentTime) {
+      // Sort schedule by date
+      const sortedSchedule = [...batch.schedule].sort((a, b) => new Date(a.date) - new Date(b.date));
+      
+      sortedSchedule.forEach(schedule => {
+        const scheduleDate = new Date(schedule.date);
+        // Only include sessions that are today or in the future
+        if (scheduleDate >= today) {
           sessions.push({
-            _id: `${batch._id}-${schedule.day}-${schedule.startTime}`,
+            _id: `${batch._id}-${schedule.date}-${schedule.startTime}`,
             batchId: batch._id,
             subject: batch.subject,
             level: batch.level,
@@ -66,24 +60,7 @@ export async function GET(request) {
             currentStudents: batch.currentStudents,
             maxStudents: batch.maxStudents,
             meetLink: batch.meetLink,
-            date: new Date(today),
-            day: schedule.day,
-            startTime: schedule.startTime,
-            endTime: schedule.endTime
-          });
-        }
-        // Check if session is for tomorrow
-        else if (tomorrowDay === scheduleDay) {
-          sessions.push({
-            _id: `${batch._id}-${schedule.day}-${schedule.startTime}`,
-            batchId: batch._id,
-            subject: batch.subject,
-            level: batch.level,
-            teacher: batch.teacher,
-            currentStudents: batch.currentStudents,
-            maxStudents: batch.maxStudents,
-            meetLink: batch.meetLink,
-            date: new Date(tomorrow),
+            date: scheduleDate,
             day: schedule.day,
             startTime: schedule.startTime,
             endTime: schedule.endTime
@@ -104,15 +81,14 @@ export async function GET(request) {
     return NextResponse.json({ sessions });
   } catch (error) {
     console.error('Error in GET /api/admin/schedule:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { 
+      status: error.message.includes('Not') ? 401 : 500 
+    });
   }
 }
 
-const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
 // Helper function to get the next occurrence of a day
 function getNextDayOccurrence(fromDate, dayName) {
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const fromDateDay = fromDate.getDay();
   const targetDay = days.indexOf(dayName);
   

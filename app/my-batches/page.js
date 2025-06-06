@@ -145,6 +145,7 @@ export default function MyBatches() {
       return;
     }
 
+    const loadingToast = toast.loading('Uploading assignment...');
     const formData = new FormData();
     formData.append('file', submissionFile);
 
@@ -157,7 +158,8 @@ export default function MyBatches() {
       });
 
       if (!uploadResponse.ok) {
-        throw new Error('Failed to upload file');
+        const error = await uploadResponse.json();
+        throw new Error(error.message || 'Failed to upload file');
       }
 
       const { url: fileUrl } = await uploadResponse.json();
@@ -175,14 +177,19 @@ export default function MyBatches() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit assignment');
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to submit assignment');
       }
 
+      toast.dismiss(loadingToast);
       toast.success('Assignment submitted successfully!');
       setSubmissionFile(null);
-      fetchAssignments(selectedBatch._id);
+      setSelectedAssignment(null);
+      await fetchAssignments(selectedBatch._id);
     } catch (err) {
-      toast.error(err.message);
+      toast.dismiss(loadingToast);
+      toast.error(err.message || 'Failed to submit assignment');
+      console.error('Assignment submission error:', err);
     }
   };
 
@@ -639,14 +646,14 @@ export default function MyBatches() {
                           <h5 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
                             Your Submission
                           </h5>
-                          {assignment.submissions?.find(s => s.student === user?._id) ? (
+                          {assignment.submissions?.some(s => s.student === user?.userId) ? (
                             <div className="space-y-4">
                               <div className="flex items-center justify-between">
                                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                                  Submitted on {formatDate(assignment.submissions[0].submittedAt)}
+                                  Submitted on {formatDate(assignment.submissions.find(s => s.student === user?.userId).submittedAt)}
                                 </span>
                                 <a
-                                  href={assignment.submissions[0].file}
+                                  href={assignment.submissions.find(s => s.student === user?.userId).file}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-primary dark:text-primary-dark hover:underline flex items-center"
@@ -661,7 +668,7 @@ export default function MyBatches() {
                                 <h6 className="text-sm font-semibold text-gray-900 dark:text-white">
                                   Feedback
                                 </h6>
-                                {assignment.submissions[0].feedback?.map((f, i) => (
+                                {assignment.submissions.find(s => s.student === user?.userId).feedback?.map((f, i) => (
                                   <div key={i} className="bg-white dark:bg-gray-800 p-3 rounded">
                                     <p className="text-sm text-gray-700 dark:text-gray-300">
                                       {f.content}

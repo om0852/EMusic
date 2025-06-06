@@ -24,7 +24,7 @@ export async function POST(request, { params }) {
 
     // Check if user has already submitted
     const existingSubmission = assignment.submissions.find(
-      sub => sub.student.toString() === user._id.toString()
+      sub => sub.student?.toString() === user.userId?.toString()
     );
 
     if (existingSubmission) {
@@ -34,9 +34,9 @@ export async function POST(request, { params }) {
       );
     }
 
-    // Add submission
+    // Add submission with the user's ID from auth
     assignment.submissions.push({
-      student: user._id,
+      student: user.userId, // Use userId from verified auth
       file,
       submittedAt: new Date()
     });
