@@ -121,7 +121,11 @@ const batchSchema = new mongoose.Schema({
       enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     },
     startTime: String,
-    endTime: String
+    endTime: String,
+    date: {
+      type: Date,
+      required: true
+    }
   }],
   meetLink: {
     type: String,

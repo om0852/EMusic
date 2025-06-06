@@ -12,7 +12,7 @@ export async function GET(request, { params }) {
     // Get the batch and verify user is enrolled
     const batch = await Batch.findOne({
       _id: batchId,
-      students: user._id
+      'students.userId': user.userId
     });
 
     if (!batch) {
@@ -22,23 +22,22 @@ export async function GET(request, { params }) {
       );
     }
 
-    // Generate sessions based on schedule
+    // Generate sessions based on schedule with stored dates
     const sessions = [];
     const now = new Date();
-    const startDate = new Date(batch.startDate);
-    const endDate = new Date(batch.endDate);
 
-    // Loop through each day from start to end
-    for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-      const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
+    // For each schedule item
+    for (const item of batch.schedule) {
+      let currentDate = new Date(item.date);
+      const [startHours, startMinutes] = item.startTime.split(':');
       
-      // Find schedule items for this day
-      const scheduleItems = batch.schedule.filter(item => item.day === dayOfWeek);
-      
-      for (const item of scheduleItems) {
-        const sessionDate = new Date(date);
-        const [hours, minutes] = item.startTime.split(':');
-        sessionDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      // Set the correct time for the first session
+      currentDate.setHours(parseInt(startHours), parseInt(startMinutes), 0, 0);
+
+      // Create recurring sessions until the end date
+      while (currentDate <= batch.endDate) {
+        // Create a new date object for this session
+        const sessionDate = new Date(currentDate);
 
         sessions.push({
           _id: `${batch._id}-${sessionDate.toISOString()}`,
@@ -48,6 +47,10 @@ export async function GET(request, { params }) {
           meetLink: batch.meetLink,
           recordingUrl: null // You would need to implement recording storage
         });
+
+        // Move to next week
+        currentDate = new Date(currentDate);
+        currentDate.setDate(currentDate.getDate() + 7);
       }
     }
 

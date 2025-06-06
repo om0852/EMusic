@@ -13,6 +13,37 @@ const buttonStyles = {
   danger: "text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 cursor-pointer transition-colors duration-200"
 };
 
+// Helper function to get the next occurrence of a day
+const getNextOccurrence = (dayName, startTime) => {
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const today = new Date();
+  const todayDay = today.getDay();
+  const targetDay = days.indexOf(dayName);
+  
+  // If it's the same day, check the time
+  if (todayDay === targetDay) {
+    const now = new Date();
+    const [hours, minutes] = startTime.split(':');
+    const sessionTime = new Date(now);
+    sessionTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+    // If the session time hasn't passed yet, use today's date
+    if (sessionTime > now) {
+      return today;
+    }
+  }
+  
+  // Calculate days until next occurrence
+  let daysUntilNext = targetDay - todayDay;
+  if (daysUntilNext <= 0 && (todayDay !== targetDay || daysUntilNext < 0)) {
+    daysUntilNext += 7;
+  }
+  
+  const nextDate = new Date();
+  nextDate.setDate(today.getDate() + daysUntilNext);
+  return nextDate;
+};
+
 export default function EditBatchPage({ params }) {
   const router = useRouter();
   const { batchId } = params;
@@ -95,7 +126,14 @@ export default function EditBatchPage({ params }) {
       return;
     }
 
-    setSchedule([...schedule, { ...newSchedule }]);
+    // Get the next occurrence of the selected day, passing the start time
+    const nextDate = getNextOccurrence(newSchedule.day, newSchedule.startTime);
+
+    setSchedule([...schedule, { 
+      ...newSchedule,
+      date: nextDate // Store the full date object
+    }]);
+    
     setNewSchedule({
       day: 'Monday',
       startTime: '',
@@ -217,17 +255,21 @@ export default function EditBatchPage({ params }) {
   };
 
   const handleSave = async () => {
+    setSaving(true);
     try {
-      setSaving(true);
-      const loadingToast = toast.loading('Saving changes...');
-      
+      // Ensure all schedule items have proper Date objects
+      const updatedSchedule = schedule.map(item => ({
+        ...item,
+        date: item.date instanceof Date ? item.date : new Date(item.date)
+      }));
+
       const response = await fetch(`/api/admin/batches/${batchId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          schedule,
+          schedule: updatedSchedule,
           meetLink: meetInfo.link,
           meetPassword: meetInfo.password
         }),
@@ -238,9 +280,8 @@ export default function EditBatchPage({ params }) {
         throw new Error('Failed to update batch');
       }
 
-      toast.dismiss(loadingToast);
-      toast.success('Changes saved successfully!');
-      router.push('/admin/batches');
+      toast.success('Batch updated successfully!');
+      router.refresh();
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -410,11 +451,16 @@ export default function EditBatchPage({ params }) {
           <div className="space-y-2">
             {schedule.map((item, index) => (
               <div key={index} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
-                <div className="flex items-center">
-                  <FaCalendar className="mr-2 text-gray-500 dark:text-gray-400" />
-                  <span className="mr-4 text-gray-900 dark:text-white">{item.day}</span>
-                  <FaClock className="mr-2 text-gray-500 dark:text-gray-400" />
-                  <span className="text-gray-900 dark:text-white">{item.startTime} - {item.endTime}</span>
+                <div className="flex items-center space-x-4">
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">{item.day}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {item.startTime} - {item.endTime}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Starting from: {item.date instanceof Date ? item.date.toLocaleDateString() : new Date(item.date).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
                 <button
                   onClick={() => handleRemoveSchedule(index)}

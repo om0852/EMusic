@@ -75,21 +75,29 @@ export default function MyBatches() {
         throw new Error(data.message || 'Error fetching sessions');
       }
 
-      // Filter sessions for today and tomorrow
+      // Filter sessions for upcoming 7 days
       const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
+      now.setHours(0, 0, 0, 0); // Start of today
+      
+      const nextWeek = new Date(now);
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      nextWeek.setHours(23, 59, 59, 999); // End of the 7th day
       
       const upcoming = data.sessions.filter(session => {
         const sessionDate = new Date(session.date);
-        return sessionDate >= now && sessionDate <= tomorrow;
+        const [hours, minutes] = session.startTime.split(':');
+        sessionDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        return sessionDate >= now && sessionDate <= nextWeek;
       });
 
       const completed = data.sessions.filter(session => {
         const sessionDate = new Date(session.date);
+        const [hours, minutes] = session.startTime.split(':');
+        sessionDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
         return sessionDate < now;
       });
 
+      console.log('Upcoming sessions:', upcoming); // Add this for debugging
       setUpcomingSessions(upcoming);
       setCompletedSessions(completed);
     } catch (err) {
@@ -226,15 +234,61 @@ export default function MyBatches() {
 
   const canJoinSession = (session) => {
     const now = new Date();
-    const sessionStart = new Date(session.date);
+    const sessionDate = new Date(session.date);
     const [hours, minutes] = session.startTime.split(':');
-    sessionStart.setHours(hours, minutes);
+    sessionDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
     
-    // Can join 10 minutes before start time
-    const joinTime = new Date(sessionStart);
+    // Calculate 10 minutes before session start
+    const joinTime = new Date(sessionDate);
     joinTime.setMinutes(joinTime.getMinutes() - 10);
+
+    // Calculate session end time
+    const endTime = new Date(sessionDate);
+    const [endHours, endMinutes] = session.endTime.split(':');
+    endTime.setHours(parseInt(endHours), parseInt(endMinutes), 0, 0);
+
+    // Debug logs
+    console.log('Now:', now);
+    console.log('Join time:', joinTime);
+    console.log('Session time:', sessionDate);
+    console.log('End time:', endTime);
     
-    return now >= joinTime && now <= sessionStart;
+    return now >= joinTime && now <= endTime;
+  };
+
+  const getSessionStatus = (session) => {
+    const now = new Date();
+    const sessionDate = new Date(session.date);
+    const [hours, minutes] = session.startTime.split(':');
+    sessionDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+    
+    const joinTime = new Date(sessionDate);
+    joinTime.setMinutes(joinTime.getMinutes() - 10);
+
+    const endTime = new Date(sessionDate);
+    const [endHours, endMinutes] = session.endTime.split(':');
+    endTime.setHours(parseInt(endHours), parseInt(endMinutes), 0, 0);
+
+    if (now < joinTime) {
+      // Calculate minutes until join time (not session time)
+      const minutesUntil = Math.floor((joinTime - now) / (1000 * 60));
+      if (minutesUntil < 60) {
+        return `Join opens in ${minutesUntil} minutes`;
+      } else {
+        const hoursUntil = Math.floor(minutesUntil / 60);
+        const remainingMinutes = minutesUntil % 60;
+        if (remainingMinutes > 0) {
+          return `Join opens in ${hoursUntil}h ${remainingMinutes}m`;
+        }
+        return `Join opens in ${hoursUntil} hours`;
+      }
+    } else if (now >= joinTime && now < sessionDate) {
+      return 'Join Now (Session starts soon)';
+    } else if (now >= sessionDate && now <= endTime) {
+      return 'In Progress';
+    } else {
+      return 'Ended';
+    }
   };
 
   const getRandomGradient = () => {
@@ -439,17 +493,38 @@ export default function MyBatches() {
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
                                   {formatTime(session.startTime)} - {formatTime(session.endTime)}
                                 </p>
+                                <p className={`text-sm mt-1 ${
+                                  getSessionStatus(session).includes('Progress') || getSessionStatus(session).includes('Join Now')
+                                    ? 'text-green-500 dark:text-green-400' 
+                                    : 'text-gray-500 dark:text-gray-400'
+                                }`}>
+                                  {getSessionStatus(session)}
+                                </p>
                               </div>
-                              {canJoinSession(session) && session.meetLink && (
-                                <a
-                                  href={session.meetLink}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors flex items-center"
-                                >
-                                  <FaVideo className="mr-2" />
-                                  Join Now
-                                </a>
+                              {session.meetLink && (
+                                <div>
+                                  {canJoinSession(session) ? (
+                                    <a
+                                      href={session.meetLink}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className={`px-4 py-2 ${
+                                        new Date() >= new Date(session.date) ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'
+                                      } text-white rounded-md transition-colors flex items-center`}
+                                    >
+                                      <FaVideo className="mr-2" />
+                                      {new Date() >= new Date(session.date) ? 'Join Now' : 'Join Early'}
+                                    </a>
+                                  ) : (
+                                    <button
+                                      disabled
+                                      className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 rounded-md cursor-not-allowed flex items-center"
+                                    >
+                                      <FaVideo className="mr-2" />
+                                      Join Meeting
+                                    </button>
+                                  )}
+                                </div>
                               )}
                             </div>
                           </div>

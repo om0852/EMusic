@@ -66,7 +66,10 @@ export async function PATCH(request, { params }) {
 
     // Update allowed fields
     if (updateData.schedule) {
-      batch.schedule = updateData.schedule;
+      batch.schedule = updateData.schedule.map(item => ({
+        ...item,
+        date: new Date(item.date)
+      }));
     }
     if (updateData.status) {
       batch.status = updateData.status;

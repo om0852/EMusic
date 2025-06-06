@@ -42,7 +42,7 @@ export const verifyAuth = async (request) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decoded || !decoded._id) {
+    if (!decoded || !decoded.userId) {
       throw new Error('Invalid token');
     }
     return decoded;
