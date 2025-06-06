@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { FaTasks, FaUpload, FaVideo, FaMicrophone, FaComment, FaTrash, FaDownload, FaFile } from 'react-icons/fa';
+import { useState, useRef } from 'react';
+import { FaTasks, FaUpload, FaVideo, FaMicrophone, FaComment, FaTrash, FaDownload, FaFile, FaStop, FaPlay } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 
 const buttonStyles = {
@@ -28,27 +28,127 @@ export default function AssignmentSection({ batchId, assignments = [], onUpdate 
     file: null
   });
 
-  const handleFileUpload = async (file, type) => {
-    if (!file) return null;
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    
+  // Recording states
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingType, setRecordingType] = useState(null); // 'audio' or 'video'
+  const mediaRecorderRef = useRef(null);
+  const chunksRef = useRef([]);
+
+  // Add new state for previews
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [isUploaded, setIsUploaded] = useState({
+    audio: false,
+    video: false
+  });
+
+  const startRecording = async (type, context = 'assignment') => {
     try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include'
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to upload file');
-      }
-      
-      const data = await response.json();
-      return data.url;
+      const constraints = {
+        audio: true,
+        video: type === 'video'
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(chunksRef.current, {
+          type: type === 'video' ? 'video/webm' : 'audio/webm'
+        });
+        
+        // Create preview URL
+        const url = URL.createObjectURL(blob);
+        setPreviewUrl(url);
+        
+        // Create a File object from the blob
+        const file = new File([blob], `${type}-recording.webm`, {
+          type: type === 'video' ? 'video/webm' : 'audio/webm'
+        });
+
+        if (context === 'assignment') {
+          setNewAssignment(prev => ({
+            ...prev,
+            files: { ...prev.files, [type]: file }
+          }));
+          setIsUploaded(prev => ({ ...prev, [type]: false }));
+        } else {
+          setFeedback(prev => ({
+            ...prev,
+            type,
+            file
+          }));
+        }
+
+        // Stop all tracks
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingType(type);
+      toast.success(`${type === 'video' ? 'Video' : 'Audio'} recording started`);
     } catch (err) {
-      throw new Error('Failed to upload file');
+      console.error('Recording error:', err);
+      toast.error('Failed to start recording. Please check your device permissions.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      toast.success('Recording stopped');
+    }
+  };
+
+  const handleFileUpload = (e, type, context = 'assignment') => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Create preview URL
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+
+    if (context === 'assignment') {
+      setNewAssignment(prev => ({
+        ...prev,
+        files: { ...prev.files, [type]: file }
+      }));
+      setIsUploaded(prev => ({ ...prev, [type]: true }));
+    } else {
+      setFeedback(prev => ({
+        ...prev,
+        type,
+        file
+      }));
+    }
+  };
+
+  const clearRecording = (type, context = 'assignment') => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+
+    if (context === 'assignment') {
+      setNewAssignment(prev => ({
+        ...prev,
+        files: { ...prev.files, [type]: null }
+      }));
+      setIsUploaded(prev => ({ ...prev, [type]: false }));
+    } else {
+      setFeedback(prev => ({
+        ...prev,
+        file: null
+      }));
     }
   };
 
@@ -123,7 +223,7 @@ export default function AssignmentSection({ batchId, assignments = [], onUpdate 
 
   const handleAddFeedback = async (assignmentId, studentId) => {
     if (!feedback.content && !feedback.file) {
-      toast.error('Please provide feedback content or upload a file');
+      toast.error('Please provide feedback content or record/upload a file');
       return;
     }
 
@@ -131,7 +231,7 @@ export default function AssignmentSection({ batchId, assignments = [], onUpdate 
     try {
       let fileUrl = null;
       if (feedback.file) {
-        fileUrl = await handleFileUpload(feedback.file, feedback.type);
+        fileUrl = await handleFileUpload(null, feedback.type);
       }
 
       const response = await fetch(`/api/admin/batches/${batchId}/assignments/${assignmentId}/feedback`, {
@@ -208,7 +308,7 @@ export default function AssignmentSection({ batchId, assignments = [], onUpdate 
                 type="date"
                 value={newAssignment.dueDate}
                 onChange={(e) => setNewAssignment(prev => ({ ...prev, dueDate: e.target.value }))}
-                className="w-full px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark"
+                className="w-full px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark cursor-pointer"
               />
             </div>
             <div>
@@ -217,7 +317,7 @@ export default function AssignmentSection({ batchId, assignments = [], onUpdate 
               </label>
               <div className="space-y-2">
                 {/* Document Upload */}
-                <label className={`${buttonStyles.secondary} w-full justify-center`}>
+                <label className={`${buttonStyles.secondary} w-full justify-center cursor-pointer`}>
                   <FaFile className="mr-2" />
                   Upload Document (PDF)
                   <input
@@ -236,51 +336,113 @@ export default function AssignmentSection({ batchId, assignments = [], onUpdate 
                   </p>
                 )}
 
-                {/* Audio Upload */}
-                <label className={`${buttonStyles.secondary} w-full justify-center`}>
-                  <FaMicrophone className="mr-2" />
-                  Upload Audio
-                  <input
-                    type="file"
-                    accept="audio/*"
-                    className="hidden"
-                    onChange={(e) => setNewAssignment(prev => ({
-                      ...prev,
-                      files: { ...prev.files, audio: e.target.files[0] }
-                    }))}
-                  />
-                </label>
-                {newAssignment.files.audio && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Audio: {newAssignment.files.audio.name}
-                  </p>
-                )}
+                {/* Audio Recording/Upload */}
+                <div className="space-y-2">
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => isRecording ? stopRecording() : startRecording('audio', 'assignment')}
+                      className={`${buttonStyles.secondary} flex-1 justify-center cursor-pointer ${isRecording && recordingType === 'audio' ? 'bg-red-100 dark:bg-red-900/30' : ''}`}
+                      disabled={isRecording && recordingType !== 'audio' || isUploaded.audio}
+                    >
+                      {isRecording && recordingType === 'audio' ? (
+                        <>
+                          <FaStop className="mr-2" />
+                          Stop Recording
+                        </>
+                      ) : (
+                        <>
+                          <FaMicrophone className="mr-2" />
+                          Record Audio
+                        </>
+                      )}
+                    </button>
+                    <label className={`${buttonStyles.secondary} flex-1 justify-center cursor-pointer ${isUploaded.audio ? 'bg-green-100 dark:bg-green-900/30' : ''}`}>
+                      <FaUpload className="mr-2" />
+                      Upload Audio
+                      <input
+                        type="file"
+                        accept="audio/*"
+                        className="hidden"
+                        onChange={(e) => handleFileUpload(e, 'audio', 'assignment')}
+                        disabled={newAssignment.files.audio && !isUploaded.audio}
+                      />
+                    </label>
+                  </div>
+                  {newAssignment.files.audio && (
+                    <div className="bg-gray-50 dark:bg-gray-700 p-2 rounded">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-gray-600 dark:text-gray-300">
+                          {isUploaded.audio ? 'Uploaded: ' : 'Recorded: '}
+                          {newAssignment.files.audio.name}
+                        </span>
+                        <button
+                          onClick={() => clearRecording('audio', 'assignment')}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                      <audio controls src={previewUrl} className="w-full" />
+                    </div>
+                  )}
+                </div>
 
-                {/* Video Upload */}
-                <label className={`${buttonStyles.secondary} w-full justify-center`}>
-                  <FaVideo className="mr-2" />
-                  Upload Video
-                  <input
-                    type="file"
-                    accept="video/*"
-                    className="hidden"
-                    onChange={(e) => setNewAssignment(prev => ({
-                      ...prev,
-                      files: { ...prev.files, video: e.target.files[0] }
-                    }))}
-                  />
-                </label>
-                {newAssignment.files.video && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Video: {newAssignment.files.video.name}
-                  </p>
-                )}
+                {/* Video Recording/Upload */}
+                <div className="space-y-2">
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => isRecording ? stopRecording() : startRecording('video', 'assignment')}
+                      className={`${buttonStyles.secondary} flex-1 justify-center cursor-pointer ${isRecording && recordingType === 'video' ? 'bg-red-100 dark:bg-red-900/30' : ''}`}
+                      disabled={isRecording && recordingType !== 'video' || isUploaded.video}
+                    >
+                      {isRecording && recordingType === 'video' ? (
+                        <>
+                          <FaStop className="mr-2" />
+                          Stop Recording
+                        </>
+                      ) : (
+                        <>
+                          <FaVideo className="mr-2" />
+                          Record Video
+                        </>
+                      )}
+                    </button>
+                    <label className={`${buttonStyles.secondary} flex-1 justify-center cursor-pointer ${isUploaded.video ? 'bg-green-100 dark:bg-green-900/30' : ''}`}>
+                      <FaUpload className="mr-2" />
+                      Upload Video
+                      <input
+                        type="file"
+                        accept="video/*"
+                        className="hidden"
+                        onChange={(e) => handleFileUpload(e, 'video', 'assignment')}
+                        disabled={newAssignment.files.video && !isUploaded.video}
+                      />
+                    </label>
+                  </div>
+                  {newAssignment.files.video && (
+                    <div className="bg-gray-50 dark:bg-gray-700 p-2 rounded">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-gray-600 dark:text-gray-300">
+                          {isUploaded.video ? 'Uploaded: ' : 'Recorded: '}
+                          {newAssignment.files.video.name}
+                        </span>
+                        <button
+                          onClick={() => clearRecording('video', 'assignment')}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                      <video controls src={previewUrl} className="w-full rounded" />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
           <button
             onClick={handleAddAssignment}
-            className={buttonStyles.primary}
+            className={`${buttonStyles.primary} w-full mt-4`}
           >
             <FaTasks className="mr-2" />
             Add Assignment
@@ -373,84 +535,144 @@ export default function AssignmentSection({ batchId, assignments = [], onUpdate 
                     )}
                   </div>
 
-                  {/* Feedback Form */}
-                  <div className="mt-4 space-y-3">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => setFeedback(prev => ({ ...prev, type: 'text' }))}
-                        className={`p-2 rounded ${feedback.type === 'text' ? 'bg-primary/10 dark:bg-primary-dark/10' : ''}`}
-                      >
-                        <FaComment />
-                      </button>
-                      <button
-                        onClick={() => setFeedback(prev => ({ ...prev, type: 'audio' }))}
-                        className={`p-2 rounded ${feedback.type === 'audio' ? 'bg-primary/10 dark:bg-primary-dark/10' : ''}`}
-                      >
-                        <FaMicrophone />
-                      </button>
-                      <button
-                        onClick={() => setFeedback(prev => ({ ...prev, type: 'video' }))}
-                        className={`p-2 rounded ${feedback.type === 'video' ? 'bg-primary/10 dark:bg-primary-dark/10' : ''}`}
-                      >
-                        <FaVideo />
-                      </button>
-                    </div>
-
-                    {feedback.type === 'text' ? (
+                  {/* Feedback Section */}
+                  <div className="space-y-3">
+                    <h6 className="text-sm font-semibold text-gray-900 dark:text-white">
+                      Add Feedback
+                    </h6>
+                    <div className="space-y-3">
                       <textarea
                         value={feedback.content}
                         onChange={(e) => setFeedback(prev => ({ ...prev, content: e.target.value }))}
+                        placeholder="Write your feedback..."
                         className="w-full px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark"
                         rows={3}
-                        placeholder="Write your feedback..."
                       />
-                    ) : (
-                      <div>
-                        <label className={buttonStyles.secondary}>
-                          <FaUpload className="mr-2" />
-                          Upload {feedback.type === 'audio' ? 'Audio' : 'Video'}
-                          <input
-                            type="file"
-                            accept={feedback.type === 'audio' ? 'audio/*' : 'video/*'}
-                            className="hidden"
-                            onChange={(e) => setFeedback(prev => ({ ...prev, file: e.target.files[0] }))}
-                          />
-                        </label>
-                        {feedback.file && (
-                          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            {feedback.file.name}
-                          </p>
-                        )}
+                      
+                      {/* Audio Recording/Upload */}
+                      <div className="space-y-2">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => isRecording ? stopRecording() : startRecording('audio', 'feedback')}
+                            className={`${buttonStyles.secondary} flex-1 justify-center cursor-pointer ${isRecording && recordingType === 'audio' ? 'bg-red-100 dark:bg-red-900/30' : ''}`}
+                            disabled={isRecording && recordingType !== 'audio' || (feedback.file && feedback.type === 'video')}
+                          >
+                            {isRecording && recordingType === 'audio' ? (
+                              <>
+                                <FaStop className="mr-2" />
+                                Stop Recording
+                              </>
+                            ) : (
+                              <>
+                                <FaMicrophone className="mr-2" />
+                                Record Audio
+                              </>
+                            )}
+                          </button>
+                          <label className={`${buttonStyles.secondary} flex-1 justify-center cursor-pointer ${feedback.type === 'audio' && feedback.file ? 'bg-green-100 dark:bg-green-900/30' : ''}`}>
+                            <FaUpload className="mr-2" />
+                            Upload Audio
+                            <input
+                              type="file"
+                              accept="audio/*"
+                              className="hidden"
+                              onChange={(e) => handleFileUpload(e, 'audio', 'feedback')}
+                              disabled={isRecording || (feedback.file && feedback.type !== 'audio')}
+                            />
+                          </label>
+                        </div>
                       </div>
-                    )}
 
-                    <button
-                      onClick={() => handleAddFeedback(assignment._id, submission.student._id)}
-                      className={buttonStyles.primary}
-                    >
-                      Add Feedback
-                    </button>
-                  </div>
+                      {/* Video Recording/Upload */}
+                      <div className="space-y-2">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => isRecording ? stopRecording() : startRecording('video', 'feedback')}
+                            className={`${buttonStyles.secondary} flex-1 justify-center cursor-pointer ${isRecording && recordingType === 'video' ? 'bg-red-100 dark:bg-red-900/30' : ''}`}
+                            disabled={isRecording && recordingType !== 'video' || (feedback.file && feedback.type === 'audio')}
+                          >
+                            {isRecording && recordingType === 'video' ? (
+                              <>
+                                <FaStop className="mr-2" />
+                                Stop Recording
+                              </>
+                            ) : (
+                              <>
+                                <FaVideo className="mr-2" />
+                                Record Video
+                              </>
+                            )}
+                          </button>
+                          <label className={`${buttonStyles.secondary} flex-1 justify-center cursor-pointer ${feedback.type === 'video' && feedback.file ? 'bg-green-100 dark:bg-green-900/30' : ''}`}>
+                            <FaUpload className="mr-2" />
+                            Upload Video
+                            <input
+                              type="file"
+                              accept="video/*"
+                              className="hidden"
+                              onChange={(e) => handleFileUpload(e, 'video', 'feedback')}
+                              disabled={isRecording || (feedback.file && feedback.type !== 'video')}
+                            />
+                          </label>
+                        </div>
+                      </div>
 
-                  {/* Previous Feedback */}
-                  {submission.feedback?.map((item) => (
-                    <div key={item._id} className="mt-4 pl-4 border-l-2 border-gray-200 dark:border-gray-700">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {new Date(item.createdAt).toLocaleString()}
-                      </p>
-                      {item.type === 'text' ? (
-                        <p className="mt-1 text-gray-700 dark:text-gray-300">{item.content}</p>
-                      ) : (
-                        <div className="mt-2">
-                          {item.type === 'audio' ? (
-                            <audio controls src={item.file} className="w-full" />
+                      {/* Preview Section */}
+                      {feedback.file && (
+                        <div className="bg-gray-50 dark:bg-gray-700 p-2 rounded">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm text-gray-600 dark:text-gray-300">
+                              {isUploaded[feedback.type] ? 'Uploaded' : 'Recorded'} {feedback.type}
+                            </span>
+                            <button
+                              onClick={() => clearRecording(feedback.type, 'feedback')}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                          {feedback.type === 'audio' ? (
+                            <audio controls src={previewUrl} className="w-full" />
                           ) : (
-                            <video controls src={item.file} className="w-full rounded" />
+                            <video controls src={previewUrl} className="w-full rounded" />
                           )}
                         </div>
                       )}
+
+                      <button
+                        onClick={() => handleAddFeedback(assignment._id, submission.student._id)}
+                        className={`${buttonStyles.primary} w-full`}
+                        disabled={!feedback.content && !feedback.file}
+                      >
+                        <FaComment className="mr-2" />
+                        Add Feedback
+                      </button>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Previous Feedback Display */}
+                  {submission.feedback?.length > 0 && (
+                    <div className="mt-4 space-y-4">
+                      <h6 className="text-sm font-semibold text-gray-900 dark:text-white">
+                        Previous Feedback
+                      </h6>
+                      {submission.feedback.map((item, index) => (
+                        <div key={index} className="pl-4 border-l-2 border-gray-200 dark:border-gray-700">
+                          <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+                            <span>{new Date(item.createdAt).toLocaleString()}</span>
+                            <span className="capitalize">{item.type}</span>
+                          </div>
+                          {item.type === 'text' ? (
+                            <p className="mt-1 text-gray-700 dark:text-gray-300">{item.content}</p>
+                          ) : item.type === 'audio' ? (
+                            <audio controls src={item.file} className="mt-2 w-full" />
+                          ) : (
+                            <video controls src={item.file} className="mt-2 w-full rounded" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
