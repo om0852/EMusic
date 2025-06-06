@@ -300,27 +300,27 @@ export default function MyBatches() {
 
   const getRandomGradient = () => {
     const gradients = [
-      'from-blue-500 to-purple-500',
-      'from-green-400 to-blue-500',
-      'from-pink-500 to-purple-500',
-      'from-yellow-400 to-orange-500',
-      'from-green-500 to-teal-500',
-      'from-indigo-500 to-purple-500'
+      'from-orange-400 to-orange-500',
+      'from-orange-300 to-orange-400',
+      'from-yellow-400 to-orange-400',
+      'from-orange-200 to-orange-400',
+      'from-red-300 to-orange-400',
+      'from-orange-300 to-yellow-400'
     ];
     return gradients[Math.floor(Math.random() * gradients.length)];
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-orange-900 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="animate-pulse space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+              <div key={i} className="bg-white dark:bg-orange-800 p-6 rounded-lg shadow-md">
+                <div className="h-4 bg-gray-200 dark:bg-orange-700 rounded w-1/4"></div>
                 <div className="space-y-3 mt-4">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-orange-700 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-orange-700 rounded w-1/2"></div>
                 </div>
               </div>
             ))}
@@ -332,7 +332,7 @@ export default function MyBatches() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-orange-900 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 dark:border-red-500 p-4 rounded-md">
             <div className="flex">
@@ -349,29 +349,29 @@ export default function MyBatches() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div className="min-h-screen bg-white dark:bg-white py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-orange-600 flex items-center">
             <FaGraduationCap className="mr-3" />
             My Learning Journey
           </h1>
         </div>
 
         {batches.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-center">
-            <p className="text-gray-500 dark:text-gray-400">You are not enrolled in any batches yet.</p>
+          <div className="bg-white shadow-md p-6 rounded-lg text-center">
+            <p className="text-gray-500 dark:text-orange-600">You are not enrolled in any batches yet.</p>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {batches.map((batch) => (
-              <div key={batch._id} className="group relative bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div key={batch._id} className="group relative bg-white shadow-md rounded-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                 <div className={`h-3 bg-gradient-to-r ${getRandomGradient()}`} />
                 <div className="p-6">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{batch.subject}</h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{batch.level}</p>
+                      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{batch.subject.name}</h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{batch.level.name}</p>
                     </div>
                     <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
                       batch.status === 'Active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' :
@@ -389,16 +389,7 @@ export default function MyBatches() {
                       <span>{formatDate(batch.startDate)} - {formatDate(batch.endDate)}</span>
                     </div>
 
-                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                      <FaClock className="mr-2" />
-                      <div>
-                        {batch.schedule.map((s, i) => (
-                          <div key={i}>
-                            {s.day}: {formatTime(s.startTime)} - {formatTime(s.endTime)}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                  
 
                     <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                       <FaUsers className="mr-2" />
@@ -407,21 +398,18 @@ export default function MyBatches() {
                       </span>
                     </div>
 
-                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                      <FaChalkboardTeacher className="mr-2" />
-                      <span>{batch.teacher.name}</span>
-                    </div>
+                  
                   </div>
 
                   <div className="mt-6">
                     <div className="flex justify-between items-center">
                       <div>
                         <span className="text-sm text-gray-500 dark:text-gray-400">{batch.subscription}</span>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-white">${batch.price}/month</p>
+                        <p className="text-lg font-semibold text-gray-900 dark:text-white">₹{batch.price}/month</p>
                       </div>
                       <button
                         onClick={() => setSelectedBatch(batch)}
-                        className="px-4 py-2 bg-primary dark:bg-primary-dark text-black dark:text-white rounded-md hover:bg-primary-dark dark:hover:bg-primary transition-colors flex items-center"
+                        className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors flex items-center cursor-pointer"
                       >
                         <FaInfoCircle className="mr-2" />
                         View Details
@@ -437,10 +425,10 @@ export default function MyBatches() {
         {/* Batch Details Modal */}
         {selectedBatch && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white dark:bg-orange-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex justify-between items-start mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{selectedBatch.subject} - {selectedBatch.level}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{selectedBatch.subject.name} - {selectedBatch.level.name}</h2>
                   <button
                     onClick={() => setSelectedBatch(null)}
                     className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
@@ -453,8 +441,8 @@ export default function MyBatches() {
                 <div className="flex space-x-4 mb-6 border-b dark:border-gray-700">
                   <button
                     onClick={() => setActiveTab('sessions')}
-                    className={`pb-2 px-1 ${activeTab === 'sessions' ? 
-                      'border-b-2 border-primary dark:border-primary-dark text-primary dark:text-primary-dark' : 
+                    className={`pb-2 px-1 cursor-pointer ${activeTab === 'sessions' ? 
+                      'border-b-2 border-orange-500 text-orange-500' : 
                       'text-gray-500 dark:text-gray-400'}`}
                   >
                     <FaVideo className="inline mr-2" />
@@ -462,8 +450,8 @@ export default function MyBatches() {
                   </button>
                   <button
                     onClick={() => setActiveTab('assignments')}
-                    className={`pb-2 px-1 ${activeTab === 'assignments' ? 
-                      'border-b-2 border-primary dark:border-primary-dark text-primary dark:text-primary-dark' : 
+                    className={`pb-2 px-1 cursor-pointer ${activeTab === 'assignments' ? 
+                      'border-b-2 border-orange-500 text-orange-500' : 
                       'text-gray-500 dark:text-gray-400'}`}
                   >
                     <FaTasks className="inline mr-2" />
@@ -471,8 +459,8 @@ export default function MyBatches() {
                   </button>
                   <button
                     onClick={() => setActiveTab('notes')}
-                    className={`pb-2 px-1 ${activeTab === 'notes' ? 
-                      'border-b-2 border-primary dark:border-primary-dark text-primary dark:text-primary-dark' : 
+                    className={`pb-2 px-1 cursor-pointer ${activeTab === 'notes' ? 
+                      'border-b-2 border-orange-500 text-orange-500' : 
                       'text-gray-500 dark:text-gray-400'}`}
                   >
                     <FaBook className="inline mr-2" />
@@ -491,7 +479,7 @@ export default function MyBatches() {
                       </h3>
                       <div className="space-y-4">
                         {upcomingSessions.map((session) => (
-                          <div key={session._id} className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                          <div key={session._id} className="bg-gray-50 dark:bg-orange-700 p-4 rounded-lg">
                             <div className="flex justify-between items-center">
                               <div>
                                 <p className="font-medium text-gray-900 dark:text-white">
@@ -515,8 +503,8 @@ export default function MyBatches() {
                                       href={session.meetLink}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className={`px-4 py-2 ${
-                                        new Date() >= new Date(session.date) ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'
+                                      className={`px-4 py-2 cursor-pointer ${
+                                        new Date() >= new Date(session.date) ? 'bg-orange-500 hover:bg-orange-600' : 'bg-orange-500 hover:bg-orange-600'
                                       } text-white rounded-md transition-colors flex items-center`}
                                     >
                                       <FaVideo className="mr-2" />
@@ -525,7 +513,7 @@ export default function MyBatches() {
                                   ) : (
                                     <button
                                       disabled
-                                      className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 rounded-md cursor-not-allowed flex items-center"
+                                      className="px-4 py-2 bg-gray-300 dark:bg-orange-600 text-gray-500 dark:text-gray-400 rounded-md cursor-not-allowed flex items-center"
                                     >
                                       <FaVideo className="mr-2" />
                                       Join Meeting
@@ -552,7 +540,7 @@ export default function MyBatches() {
                       </h3>
                       <div className="space-y-4">
                         {completedSessions.map((session) => (
-                          <div key={session._id} className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                          <div key={session._id} className="bg-gray-50 dark:bg-orange-700 p-4 rounded-lg">
                             <div className="flex justify-between items-center">
                               <div>
                                 <p className="font-medium text-gray-900 dark:text-white">
@@ -590,7 +578,7 @@ export default function MyBatches() {
                 {activeTab === 'assignments' && (
                   <div className="space-y-6">
                     {assignments.map((assignment) => (
-                      <div key={assignment._id} className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+                      <div key={assignment._id} className="bg-gray-50 dark:bg-orange-700 p-6 rounded-lg">
                         <div className="flex justify-between items-start mb-4">
                           <div>
                             <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -606,7 +594,7 @@ export default function MyBatches() {
                                 href={assignment.files.document}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-3 py-1 bg-primary dark:bg-primary-dark text-black dark:text-white rounded flex items-center text-sm hover:bg-primary-dark dark:hover:bg-primary transition-colors"
+                                className="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded flex items-center text-sm transition-colors cursor-pointer"
                               >
                                 <FaDownload className="mr-2" />
                                 Document
@@ -617,7 +605,7 @@ export default function MyBatches() {
                                 href={assignment.files.audio}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-3 py-1 bg-primary dark:bg-primary-dark text-black dark:text-white rounded flex items-center text-sm hover:bg-primary-dark dark:hover:bg-primary transition-colors"
+                                className="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded flex items-center text-sm transition-colors cursor-pointer"
                               >
                                 <FaDownload className="mr-2" />
                                 Audio
@@ -628,7 +616,7 @@ export default function MyBatches() {
                                 href={assignment.files.video}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-3 py-1 bg-primary dark:bg-primary-dark text-black dark:text-white rounded flex items-center text-sm hover:bg-primary-dark dark:hover:bg-primary transition-colors"
+                                className="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded flex items-center text-sm transition-colors cursor-pointer"
                               >
                                 <FaDownload className="mr-2" />
                                 Video
@@ -669,7 +657,7 @@ export default function MyBatches() {
                                   Feedback
                                 </h6>
                                 {assignment.submissions.find(s => s.student === user?.userId).feedback?.map((f, i) => (
-                                  <div key={i} className="bg-white dark:bg-gray-800 p-3 rounded">
+                                  <div key={i} className="bg-white dark:bg-orange-600 p-3 rounded">
                                     <p className="text-sm text-gray-700 dark:text-gray-300">
                                       {f.content}
                                     </p>
@@ -686,11 +674,11 @@ export default function MyBatches() {
                                     value={feedback}
                                     onChange={(e) => setFeedback(e.target.value)}
                                     placeholder="Write your feedback..."
-                                    className="flex-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    className="flex-1 px-3 py-2 border rounded-md dark:bg-orange-700 dark:border-orange-600 dark:text-white"
                                   />
                                   <button
                                     onClick={() => handleAddFeedback(assignment._id)}
-                                    className="px-4 py-2 bg-primary dark:bg-primary-dark text-black dark:text-white rounded-md hover:bg-primary-dark dark:hover:bg-primary transition-colors flex items-center"
+                                    className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors flex items-center cursor-pointer"
                                   >
                                     <FaPaperPlane className="mr-2" />
                                     Send
@@ -716,7 +704,7 @@ export default function MyBatches() {
                                 </label>
                                 <button
                                   onClick={() => handleSubmitAssignment(assignment._id)}
-                                  className="px-4 py-2 bg-primary dark:bg-primary-dark text-black dark:text-white rounded-md hover:bg-primary-dark dark:hover:bg-primary transition-colors flex items-center"
+                                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors flex items-center cursor-pointer"
                                 >
                                   <FaPaperPlane className="mr-2" />
                                   Submit
@@ -739,7 +727,7 @@ export default function MyBatches() {
                 {activeTab === 'notes' && (
                   <div className="space-y-6">
                     {notes.map((note) => (
-                      <div key={note._id} className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+                      <div key={note._id} className="bg-gray-50 dark:bg-orange-700 p-6 rounded-lg">
                         <div className="flex justify-between items-start mb-4">
                           <div>
                             <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -754,7 +742,7 @@ export default function MyBatches() {
                               href={note.file}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="px-3 py-1 bg-primary dark:bg-primary-dark text-black dark:text-white rounded flex items-center text-sm hover:bg-primary-dark dark:hover:bg-primary transition-colors"
+                              className="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded flex items-center text-sm transition-colors cursor-pointer"
                             >
                               <FaDownload className="mr-2" />
                               Download PDF

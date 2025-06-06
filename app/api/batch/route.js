@@ -6,6 +6,41 @@ import Subject from '@/app/models/Subject';
 import Level from '@/app/models/Level';
 import jwt from 'jsonwebtoken';
 
+// Helper function to calculate schedule dates
+function calculateScheduleDates(startDate, schedule, durationMonths) {
+  const dates = [];
+  const endDate = new Date(startDate);
+  endDate.setMonth(endDate.getMonth() + durationMonths);
+
+  const start = new Date(startDate);
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  while (start <= endDate) {
+    schedule.forEach(slot => {
+      const dayIndex = days.indexOf(slot.day);
+      if (dayIndex === start.getDay()) {
+        const sessionDate = new Date(start);
+        const [startHours, startMinutes] = slot.startTime.split(':');
+        const [endHours, endMinutes] = slot.endTime.split(':');
+        
+        sessionDate.setHours(parseInt(startHours), parseInt(startMinutes), 0, 0);
+        
+        dates.push({
+          date: new Date(sessionDate),
+          day: slot.day,
+          startTime: slot.startTime,
+          endTime: slot.endTime
+        });
+      }
+    });
+    
+    // Move to next day
+    start.setDate(start.getDate() + 1);
+  }
+
+  return dates;
+}
+
 export async function POST(req) {
   try {
     await connectDB();
@@ -43,14 +78,66 @@ export async function POST(req) {
       }, { status: 400 });
     }
 
+    // Create new batch using level's dates
+    const startDate = new Date(); // Current date
+    let durationMonths;
+    
+    // Set duration based on subscription plan
+    switch (batchData.subscription) {
+      case 'Monthly':
+        durationMonths = 1;
+        break;
+      case 'Quarterly':
+        durationMonths = 3;
+        break;
+      case 'Semi-Annual':
+        durationMonths = 6;
+        break;
+      case 'Annual':
+        durationMonths = 12;
+        break;
+      default:
+        durationMonths = 1;
+    }
+
+    // Calculate end date
+    const endDate = new Date(startDate);
+    endDate.setMonth(endDate.getMonth() + durationMonths);
+
+    // Calculate all session dates
+    const schedule = [];
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+      level.schedule.forEach(slot => {
+        const dayIndex = days.indexOf(slot.day);
+        if (dayIndex === currentDate.getDay()) {
+          const sessionDate = new Date(currentDate);
+          const [startHours, startMinutes] = slot.startTime.split(':');
+          sessionDate.setHours(parseInt(startHours), parseInt(startMinutes), 0, 0);
+
+          schedule.push({
+            date: new Date(sessionDate),
+            day: slot.day,
+            startTime: slot.startTime,
+            endTime: slot.endTime
+          });
+        }
+      });
+      
+      // Move to next day
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
     // Create new batch
     const batch = new Batch({
       subject: batchData.subject,
       level: batchData.level,
-      startDate: new Date(),
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-      schedule: batchData.schedule || [],
-      teacher: user._id, // Current user as teacher for now
+      startDate: startDate,
+      endDate: endDate,
+      schedule: schedule,
+      teacher: user._id,
       subscription: batchData.subscription,
       price: batchData.price,
       status: 'Active',

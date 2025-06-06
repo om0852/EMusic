@@ -33,6 +33,32 @@ const levelSchema = new mongoose.Schema({
     startTime: String,
     endTime: String
   }],
+  startDate: {
+    type: Date,
+    required: true
+  },
+  endDate: {
+    type: Date,
+    required: true
+  },
+  sessionDates: [{
+    date: {
+      type: Date,
+      required: true
+    },
+    day: {
+      type: String,
+      enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    },
+    startTime: String,
+    endTime: String
+  }],
+  duration: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 12
+  },
   createdAt: {
     type: Date,
     default: Date.now

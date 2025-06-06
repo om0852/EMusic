@@ -25,7 +25,10 @@ export async function GET(req) {
     // Find all batches where the user is enrolled
     const batches = await Batch.find({
       'students.userId': user._id
-    }).populate('teacher', 'name email');
+    })
+    .populate('subject', 'name description')
+    .populate('level', 'name description')
+    .populate('teacher', 'name email');
 
     return NextResponse.json({ batches: batches || [] });
   } catch (error) {

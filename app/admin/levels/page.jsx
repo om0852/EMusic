@@ -10,11 +10,14 @@ const LevelsPage = () => {
     name: '',
     description: '',
     subject: '',
-    schedule: [{ day: '', time: '' }],
+    schedule: [{ day: '', startTime: '', endTime: '' }],
     price: {
       individual: 0,
       group: 0
-    }
+    },
+    startDate: '',
+    endDate: '',
+    duration: 1, // Duration in months
   });
 
   // Fetch subjects
@@ -50,9 +53,54 @@ const LevelsPage = () => {
     fetchLevels();
   }, [selectedSubject]);
 
+  const calculateSessionDates = (startDate, schedule, durationMonths) => {
+    const dates = [];
+    const endDate = new Date(startDate);
+    endDate.setMonth(endDate.getMonth() + durationMonths);
+
+    const start = new Date(startDate);
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    while (start <= endDate) {
+      schedule.forEach(slot => {
+        const dayIndex = days.indexOf(slot.day);
+        if (dayIndex === start.getDay()) {
+          const sessionDate = new Date(start);
+          const [startHours, startMinutes] = slot.startTime.split(':');
+          const [endHours, endMinutes] = slot.endTime.split(':');
+          
+          sessionDate.setHours(parseInt(startHours), parseInt(startMinutes), 0, 0);
+          
+          dates.push({
+            date: new Date(sessionDate),
+            day: slot.day,
+            startTime: slot.startTime,
+            endTime: slot.endTime
+          });
+        }
+      });
+      
+      // Move to next day
+      start.setDate(start.getDate() + 1);
+    }
+
+    return dates;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const method = formData._id ? 'PUT' : 'POST';
+
+    // Ensure we have a valid start date
+    if (!formData.startDate) {
+      formData.startDate = new Date().toISOString().split('T')[0];
+    }
+
+    // Ensure we have a valid duration
+    if (!formData.duration) {
+      formData.duration = 1;
+    }
+
     try {
       const response = await fetch('/api/level', {
         method,
@@ -76,11 +124,13 @@ const LevelsPage = () => {
           name: '',
           description: '',
           subject: '',
-          schedule: [{ day: '', time: '' }],
+          schedule: [{ day: '', startTime: '', endTime: '' }],
           price: {
             individual: 0,
             group: 0
-          }
+          },
+          startDate: new Date().toISOString().split('T')[0],
+          duration: 1
         });
       }
     } catch (error) {
@@ -105,7 +155,7 @@ const LevelsPage = () => {
   const addSchedule = () => {
     setFormData({
       ...formData,
-      schedule: [...formData.schedule, { day: '', time: '' }]
+      schedule: [...formData.schedule, { day: '', startTime: '', endTime: '' }]
     });
   };
 
@@ -279,6 +329,36 @@ const LevelsPage = () => {
                 </div>
               </div>
 
+              {/* Date Selection */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#A78BFA] mb-2">
+                    Start Date
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.startDate}
+                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                    className="block w-full rounded-lg border-[#334155] bg-[#0F172A] text-[#F8FAFC] shadow-sm focus:border-[#A78BFA] focus:ring-[#A78BFA] px-4 py-2.5"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#A78BFA] mb-2">
+                    Duration (Months)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="12"
+                    value={formData.duration}
+                    onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
+                    className="block w-full rounded-lg border-[#334155] bg-[#0F172A] text-[#F8FAFC] shadow-sm focus:border-[#A78BFA] focus:ring-[#A78BFA] px-4 py-2.5"
+                    required
+                  />
+                </div>
+              </div>
+
               {/* Schedule */}
               <div>
                 <div className="flex justify-between items-center mb-2">
@@ -295,7 +375,7 @@ const LevelsPage = () => {
                 </div>
                 <div className="space-y-3">
                   {formData.schedule.map((slot, index) => (
-                    <div key={index} className="flex gap-4 items-center">
+                    <div key={index} className="grid grid-cols-4 gap-4 items-center">
                       <select
                         value={slot.day}
                         onChange={(e) => {
@@ -303,7 +383,7 @@ const LevelsPage = () => {
                           newSchedule[index].day = e.target.value;
                           setFormData({ ...formData, schedule: newSchedule });
                         }}
-                        className="flex-1 rounded-lg border-[#334155] bg-[#0F172A] text-[#F8FAFC] shadow-sm focus:border-[#A78BFA] focus:ring-[#A78BFA] px-4 py-2.5"
+                        className="rounded-lg border-[#334155] bg-[#0F172A] text-[#F8FAFC] shadow-sm focus:border-[#A78BFA] focus:ring-[#A78BFA] px-4 py-2.5"
                         required
                       >
                         <option value="">Select Day</option>
@@ -313,26 +393,52 @@ const LevelsPage = () => {
                           </option>
                         ))}
                       </select>
-                      <input
-                        type="time"
-                        value={slot.time}
-                        onChange={(e) => {
-                          const newSchedule = [...formData.schedule];
-                          newSchedule[index].time = e.target.value;
-                          setFormData({ ...formData, schedule: newSchedule });
-                        }}
-                        className="flex-1 rounded-lg border-[#334155] bg-[#0F172A] text-[#F8FAFC] shadow-sm focus:border-[#A78BFA] focus:ring-[#A78BFA] px-4 py-2.5"
-                        required
-                      />
+                      <div className="col-span-2 grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-medium text-[#A78BFA] mb-1">
+                            Start Time
+                          </label>
+                          <input
+                            type="time"
+                            value={slot.startTime}
+                            onChange={(e) => {
+                              const newSchedule = [...formData.schedule];
+                              newSchedule[index].startTime = e.target.value;
+                              setFormData({ ...formData, schedule: newSchedule });
+                            }}
+                            className="w-full rounded-lg border-[#334155] bg-[#0F172A] text-[#F8FAFC] shadow-sm focus:border-[#A78BFA] focus:ring-[#A78BFA] px-4 py-2.5"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[#A78BFA] mb-1">
+                            End Time
+                          </label>
+                          <input
+                            type="time"
+                            value={slot.endTime}
+                            onChange={(e) => {
+                              const newSchedule = [...formData.schedule];
+                              newSchedule[index].endTime = e.target.value;
+                              setFormData({ ...formData, schedule: newSchedule });
+                            }}
+                            className="w-full rounded-lg border-[#334155] bg-[#0F172A] text-[#F8FAFC] shadow-sm focus:border-[#A78BFA] focus:ring-[#A78BFA] px-4 py-2.5"
+                            required
+                          />
+                        </div>
+                      </div>
                       {index > 0 && (
                         <button
                           type="button"
                           onClick={() => removeSchedule(index)}
-                          className="text-[#F87171] hover:text-red-400"
+                          className="text-[#F87171] hover:text-red-400 justify-self-end"
                         >
-                          Remove
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
                         </button>
                       )}
+                      {index === 0 && <div />} {/* Empty div for grid alignment when no remove button */}
                     </div>
                   ))}
                 </div>

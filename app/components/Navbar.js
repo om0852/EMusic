@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { FaMusic, FaUserCircle } from 'react-icons/fa';
+import Image from 'next/image';
 
 export default function Navbar() {
   const [mounted, setMounted] = useState(false);
@@ -36,6 +37,7 @@ export default function Navbar() {
         setIsLoggedIn(true);
         console.log(data)
         setUser(data.user);
+        console.log(data.user)
       } else {
         setIsLoggedIn(false);
         setUser(null);
@@ -77,8 +79,14 @@ export default function Navbar() {
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <FaMusic className="h-8 w-8 text-primary" />
-                <span className="ml-2 text-2xl font-bold text-primary">EMusic</span>
+                <Image
+                  src="/Musicoul_logo.jpg"
+                  alt="Musicoul Logo"
+                  width={40}
+                  height={40}
+                  className="rounded-md"
+                />
+                <span className="ml-2 text-2xl font-bold text-black">Musicoul</span>
               </div>
             </div>
           </div>
@@ -100,8 +108,14 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <FaMusic className="h-8 w-8 text-primary" />
-              <span className="ml-2 text-2xl font-bold text-primary">EMusic</span>
+              <Image
+                src="/Musicoul_logo.jpg"
+                alt="Musicoul Logo"
+                width={40}
+                height={40}
+                className="rounded-md"
+              />
+              <span className="ml-2 text-2xl font-bold text-black">Musicoul</span>
             </Link>
           </div>
 
@@ -109,11 +123,14 @@ export default function Navbar() {
           <div className="hidden sm:flex sm:items-center sm:space-x-8">
             {isLoggedIn ? (
               <>
+               {user.role=="admin" && <Link href="/admin" className="text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors">
+                  Admin
+                </Link>}
                 <Link href="/m-class" className="text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors">
                   M-Class
                 </Link>
-                <Link href="/e-class" className="text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors">
-                  E-Class
+                <Link href="/m-youtube" className="text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors">
+                  M-Youtube
                 </Link>
                 <Link href="/my-batches" className="text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors">
                   My Batches
@@ -197,11 +214,11 @@ export default function Navbar() {
                   M-Class
                 </Link>
                 <Link
-                  href="/e-class"
+                  href="/m-youtube"
                   className="block text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  E-Class
+                  M-Youtube
                 </Link>
                 <Link
                   href="/my-batches"

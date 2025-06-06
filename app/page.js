@@ -11,7 +11,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-[#1A1A1A] mb-6">
-              Welcome to eMusic Learning
+              Welcome to Musicoul Learning
             </h1>
             <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
               Choose your preferred learning path and start your musical journey
@@ -25,7 +25,7 @@ export default function Home() {
                 whileHover={{ scale: 1.02 }}
                 className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100"
               >
-                <div className="p-8">
+                <div className="p-8 relative z-100">
                   <div className="w-16 h-16 bg-[#3F51B5] rounded-full flex items-center justify-center mb-6 mx-auto">
                     <svg
                       className="w-8 h-8 text-white"
@@ -80,7 +80,7 @@ export default function Home() {
                         />
                       </svg>
                       Interactive Learning
-          </li>
+                    </li>
                     <li className="flex items-center">
                       <svg
                         className="w-5 h-5 text-[#3F51B5] mr-2"
@@ -96,11 +96,11 @@ export default function Home() {
                         />
                       </svg>
                       Flexible Schedule
-          </li>
+                    </li>
                   </ul>
                   <Link
                     href="/m-class"
-                    className="block w-full bg-[#FF5722] text-white text-center py-3 rounded-lg font-semibold hover:bg-[#F4511E] transition-colors duration-200"
+                    className="block w-full cursor-pointer bg-[#FF5722] text-white text-center py-3 rounded-lg font-semibold hover:bg-[#F4511E] transition-colors duration-200"
                   >
                     Explore M-Class
                   </Link>
@@ -129,7 +129,7 @@ export default function Home() {
                     </svg>
                   </div>
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-4">
-                    E-Class
+                    M-Youtube
                   </h2>
                   <p className="text-gray-600 mb-6">
                     Access our curated collection of video lessons. Learn at
@@ -186,10 +186,10 @@ export default function Home() {
                     </li>
                   </ul>
                   <Link
-                    href="/e-class"
-                    className="block w-full bg-[#FF5722] text-white text-center py-3 rounded-lg font-semibold hover:bg-[#F4511E] transition-colors duration-200"
+                    href="/m-youtube"
+                    className="block w-full cursor-pointer bg-[#FF5722] text-white text-center py-3 rounded-lg font-semibold hover:bg-[#F4511E] transition-colors duration-200"
                   >
-                    Explore E-Class
+                    Explore M-Youtube
                   </Link>
                 </div>
               </motion.div>
@@ -202,7 +202,7 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-[#1A1A1A] mb-4">
-            Why Choose eMusic Learning?
+            Why Choose Musicoul Learning?
           </h2>
           <p className="text-gray-600">
             Experience the best of both worlds with our comprehensive learning
