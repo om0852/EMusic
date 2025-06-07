@@ -366,7 +366,7 @@ export default function MyBatches() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {batches.map((batch) => (
-              <div key={batch._id} className="group relative bg-white shadow-lg rounded-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-orange-100">
+              <div key={batch._id} className="group relative bg-white shadow-lg rounded-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-orange-100" style={{backgroundImage: `url(${batch.subject.image})`}}>
                 <div className={`h-3 bg-gradient-to-r ${getRandomGradient()}`} />
                 <div className="p-6">
                   <div className="flex justify-between items-start">

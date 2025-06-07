@@ -27,7 +27,7 @@ export async function GET(req) {
     const batches = await Batch.find({
       'students.userId': user._id
     })
-    .populate('subject', 'name description')
+    .populate('subject', 'name description image')
     .populate('level', 'name description')
     .populate('teacher', 'name email');
 

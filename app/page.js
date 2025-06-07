@@ -42,7 +42,7 @@ export default function Home() {
                     </svg>
                   </div>
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-4">
-                    m-premium
+                    M-Premium
                   </h2>
                   <p className="text-gray-600 mb-6">
                     Live interactive music classes with professional
@@ -102,7 +102,7 @@ export default function Home() {
                     href="/m-premium"
                     className="block w-full cursor-pointer bg-[#FF5722] text-white text-center py-3 rounded-lg font-semibold hover:bg-[#F4511E] transition-colors duration-200"
                   >
-                    Explore m-premium
+                    Explore M-Premium
                   </Link>
                 </div>
               </motion.div>
@@ -129,7 +129,7 @@ export default function Home() {
                     </svg>
                   </div>
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-4">
-                    m-free
+                    M-Free
                   </h2>
                   <p className="text-gray-600 mb-6">
                     Access our curated collection of video lessons. Learn at
@@ -189,7 +189,7 @@ export default function Home() {
                     href="/m-free"
                     className="block w-full cursor-pointer bg-[#FF5722] text-white text-center py-3 rounded-lg font-semibold hover:bg-[#F4511E] transition-colors duration-200"
                   >
-                    Explore m-free
+                    Explore M-Free
                   </Link>
                 </div>
               </motion.div>

@@ -10,7 +10,7 @@ export function middleware(request) {
 
   const isPublicPath = pathname === '/' || pathname === '/login' || pathname === '/signup';
   const token = request.cookies.get('token')?.value;
-
+console.log(token)
   // If trying to access protected route without token, redirect to login
   if (!isPublicPath && !token) {
     return NextResponse.redirect(new URL('/login', request.url));

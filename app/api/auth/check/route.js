@@ -8,7 +8,7 @@ export async function GET(req) {
     await connectDB(); // Connect to database first
 
     const token = req.cookies.get('token')?.value;
-    
+    // console.log("token",token)
     if (!token) {
       console.log('No token found');
       return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });

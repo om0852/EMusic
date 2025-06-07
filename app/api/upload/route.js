@@ -27,7 +27,6 @@ export async function POST(request) {
       access: 'public',
       token: process.env.BLOB_READ_WRITE_TOKEN
     });
-    console.log(url)
 
     return NextResponse.json({ url });
   } catch (error) {
