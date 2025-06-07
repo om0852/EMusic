@@ -127,10 +127,10 @@ export default function Navbar() {
                   Admin
                 </Link>}
                 <Link href="/m-premium" className="text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors">
-                  m-premium
+                  M-Premium
                 </Link>
                 <Link href="/m-free" className="text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors">
-                  m-free
+                  M-Free
                 </Link>
                 <Link href="/my-batches" className="text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors">
                   My Batches
