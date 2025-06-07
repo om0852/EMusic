@@ -126,11 +126,11 @@ export default function Navbar() {
                {user.role=="admin" && <Link href="/admin" className="text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors">
                   Admin
                 </Link>}
-                <Link href="/m-class" className="text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors">
-                  M-Class
+                <Link href="/m-premium" className="text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors">
+                  m-premium
                 </Link>
-                <Link href="/m-youtube" className="text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors">
-                  M-Youtube
+                <Link href="/m-free" className="text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors">
+                  m-free
                 </Link>
                 <Link href="/my-batches" className="text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors">
                   My Batches
@@ -207,18 +207,18 @@ export default function Navbar() {
                   <span className="ml-2">{user?.name}</span>
                 </div>
                 <Link
-                  href="/m-class"
+                  href="/m-premium"
                   className="block text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  M-Class
+                  m-premium
                 </Link>
                 <Link
-                  href="/m-youtube"
+                  href="/m-free"
                   className="block text-gray-700 hover:text-primary px-3 py-2 rounded-md transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  M-Youtube
+                  m-free
                 </Link>
                 <Link
                   href="/my-batches"
