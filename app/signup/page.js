@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FaEnvelope, FaLock, FaMusic, FaUser } from 'react-icons/fa';
+import { FaEnvelope, FaLock, FaUser } from 'react-icons/fa';
+import Image from 'next/image';
 
 export default function Signup() {
   const [step, setStep] = useState(1);
@@ -103,20 +104,19 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <div className="bg-primary text-white p-4 rounded-full">
-            <FaMusic className="h-12 w-12" />
-          </div>
-        </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          {step === 1 ? 'Join EMusic Today' : 'Verify Your Email'}
+       
+        <h2 className="mt-6 text-center text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+          {step === 1 ? 'Join Musicoul Today' : 'Verify Your Email'}
         </h2>
         {step === 1 && (
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-3 text-center text-sm text-gray-400">
             Already have an account?{' '}
-            <Link href="/login" className="font-medium text-primary hover:text-primary-dark transition-colors">
+            <Link 
+              href="/login" 
+              className="font-medium text-pink-400 hover:text-pink-300 transition-colors"
+            >
               Sign in
             </Link>
           </p>
@@ -124,12 +124,12 @@ export default function Signup() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-xl shadow-primary/5 sm:rounded-lg sm:px-10 border border-gray-100">
+        <div className="bg-gray-900/80 backdrop-blur-sm py-8 px-6 shadow-2xl sm:rounded-2xl sm:px-10 border border-gray-800/50">
           {error && (
-            <div className="mb-4 bg-red-50 border-l-4 border-red-400 p-4 rounded-md" role="alert">
+            <div className="mb-4 bg-red-900/30 border-l-4 border-red-500 p-4 rounded-md" role="alert">
               <div className="flex">
                 <div className="ml-3">
-                  <p className="text-sm text-red-700">{error}</p>
+                  <p className="text-sm text-red-200">{error}</p>
                 </div>
               </div>
             </div>
@@ -138,12 +138,12 @@ export default function Signup() {
           {step === 1 ? (
             <form className="space-y-6" onSubmit={handleSignup}>
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">
                   Full Name
                 </label>
-                <div className="mt-1 relative">
+                <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaUser className="h-5 w-5 text-gray-400" />
+                    <FaUser className="h-5 w-5 text-pink-500" />
                   </div>
                   <input
                     id="name"
@@ -152,19 +152,19 @@ export default function Signup() {
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                    className="bg-gray-800/50 text-white placeholder-gray-500 appearance-none block w-full pl-10 px-3 py-3 border border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent sm:text-sm transition-all duration-200"
                     placeholder="Enter your full name"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
                   Email address
                 </label>
-                <div className="mt-1 relative">
+                <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaEnvelope className="h-5 w-5 text-gray-400" />
+                    <FaEnvelope className="h-5 w-5 text-pink-500" />
                   </div>
                   <input
                     id="email"
@@ -174,19 +174,22 @@ export default function Signup() {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                    className="bg-gray-800/50 text-white placeholder-gray-500 appearance-none block w-full pl-10 px-3 py-3 border border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent sm:text-sm transition-all duration-200"
                     placeholder="Enter your email"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <div className="mt-1 relative">
+                <div className="flex items-center justify-between mb-1">
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+                    Password
+                  </label>
+                  <span className="text-xs text-gray-500">At least 6 characters</span>
+                </div>
+                <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaLock className="h-5 w-5 text-gray-400" />
+                    <FaLock className="h-5 w-5 text-pink-500" />
                   </div>
                   <input
                     id="password"
@@ -195,20 +198,19 @@ export default function Signup() {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-                    placeholder="Create a password"
+                    className="bg-gray-800/50 text-white placeholder-gray-500 appearance-none block w-full pl-10 px-3 py-3 border border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent sm:text-sm transition-all duration-200"
+                    placeholder="••••••••"
                   />
                 </div>
-                <p className="mt-1 text-xs text-gray-500">Must be at least 6 characters long</p>
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-1">
                   Confirm Password
                 </label>
-                <div className="mt-1 relative">
+                <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaLock className="h-5 w-5 text-gray-400" />
+                    <FaLock className="h-5 w-5 text-pink-500" />
                   </div>
                   <input
                     id="confirmPassword"
@@ -217,8 +219,8 @@ export default function Signup() {
                     required
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-                    placeholder="Confirm your password"
+                    className="bg-gray-800/50 text-white placeholder-gray-500 appearance-none block w-full pl-10 px-3 py-3 border border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent sm:text-sm transition-all duration-200"
+                    placeholder="••••••••"
                   />
                 </div>
               </div>
@@ -227,13 +229,13 @@ export default function Signup() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-black bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors ${
-                    loading ? 'opacity-50 cursor-not-allowed' : ''
+                  className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 hover:from-purple-700 hover:via-pink-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 shadow-lg shadow-pink-500/20 hover:shadow-pink-500/30 transition-all duration-300 ${
+                    loading ? 'opacity-70 cursor-not-allowed' : ''
                   }`}
                 >
                   {loading ? (
                     <div className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
