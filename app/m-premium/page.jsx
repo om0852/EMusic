@@ -224,7 +224,7 @@ export default function MClassPage() {
           contact: userData.user.phone || ''
         },
         theme: {
-          color: '#f97316',
+          color: '#800080',
         },
       };
 
@@ -232,6 +232,8 @@ export default function MClassPage() {
 
       const paymentObject = new window.Razorpay(options);
       paymentObject.open();
+      setIsProcessingPayment(false);
+
     } catch (error) {
       console.error('Payment error:', error);
       alert(`Payment failed: ${error.message}`);
@@ -267,17 +269,17 @@ export default function MClassPage() {
         src="https://checkout.razorpay.com/v1/checkout.js"
         strategy="lazyOnload"
       />
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/30 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 py-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-20">
             <div className="inline-block">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
                 Live Music Classes
               </h1>
-              <div className="h-1 w-24 bg-orange-500 mx-auto rounded-full"></div>
+              <div className="h-1 w-24 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto rounded-full"></div>
             </div>
-            <p className="text-gray-600 max-w-2xl mx-auto text-lg mt-6">
+            <p className="text-gray-300 max-w-2xl mx-auto text-lg mt-6">
               Join our live interactive music classes with professional instructors. Choose your preferred subject and level to get started.
             </p>
           </div>
@@ -290,14 +292,14 @@ export default function MClassPage() {
                 onClick={() => setSelectedSubject(subject)}
                 className={`cursor-pointer p-8 rounded-lg transition-all duration-300 ${
                   selectedSubject?._id === subject._id
-                    ? 'bg-white ring-2 ring-orange-500 shadow-lg'
-                    : 'bg-white hover:shadow-lg hover:ring-2 hover:ring-orange-300 shadow'
+                    ? 'bg-gradient-to-br from-purple-900/80 to-pink-900/80 ring-2 ring-pink-500 shadow-lg text-white'
+                    : 'bg-gray-800 hover:shadow-lg hover:ring-2 hover:ring-pink-400 shadow-md text-gray-200 hover:bg-gray-700/80'
                 }`}
               >
-                <h3 className="text-2xl font-semibold text-gray-900 mb-3">{subject.name}</h3>
-                <p className="text-gray-600 mb-4">{subject.description}</p>
+                <h3 className="text-2xl font-semibold text-white mb-3">{subject.name}</h3>
+                <p className="text-gray-300 mb-4">{subject.description}</p>
                 <div className={`flex items-center text-sm font-medium ${
-                  selectedSubject?._id === subject._id ? 'text-orange-600' : 'text-gray-500'
+                  selectedSubject?._id === subject._id ? 'text-pink-400' : 'text-gray-400'
                 }`}>
                   <span>View Levels</span>
                   <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -310,29 +312,29 @@ export default function MClassPage() {
 
           {/* Levels and Schedule */}
           {selectedSubject && (
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="p-8 border-b bg-gray-50">
-                <h2 className="text-3xl font-semibold text-gray-900 mb-2">
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-xl overflow-hidden border border-gray-700">
+              <div className="p-8 border-b border-gray-700 bg-gradient-to-r from-purple-900/40 to-pink-900/40">
+                <h2 className="text-3xl font-semibold text-white mb-2">
                   Available Levels for {selectedSubject.name}
                 </h2>
-                <p className="text-gray-600">Select a level to view schedule and enroll</p>
+                <p className="text-gray-300">Select a level to view schedule and enroll</p>
               </div>
               
               <div className="divide-y divide-gray-100">
                 {levels.map((level) => (
-                  <div key={level._id} className="p-8 hover:bg-gray-50 transition-colors duration-200">
+                  <div key={level._id} className="p-8 hover:bg-gray-800/50 transition-colors duration-200 border-b border-gray-700 last:border-b-0">
                     <div className="md:flex justify-between items-start">
                       <div className="mb-6 md:mb-0 md:flex-1">
-                        <h3 className="text-2xl font-semibold text-gray-900 mb-3">{level.name}</h3>
-                        <p className="text-gray-600 mb-6">{level.description}</p>
+                        <h3 className="text-2xl font-semibold text-white mb-3">{level.name}</h3>
+                        <p className="text-gray-300 mb-6">{level.description}</p>
                         
                         {/* Schedule */}
                         <div className="space-y-3">
-                          <h4 className="text-lg font-medium text-gray-900 mb-4">Available Time Slots</h4>
+                          <h4 className="text-lg font-medium text-white mb-4">Available Time Slots</h4>
                           <div className="grid sm:grid-cols-2 gap-3">
                             {level.schedule.map((slot, index) => (
-                              <div key={index} className="flex items-center text-base text-gray-600 bg-gray-50 rounded-lg p-4">
-                                <svg className="w-5 h-5 mr-3 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <div key={index} className="flex items-center text-base text-gray-200 bg-gray-800 rounded-lg p-4 border border-gray-700 hover:border-pink-500/50 transition-colors">
+                                <svg className="w-5 h-5 mr-3 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 {slot.day} at {slot.time}
@@ -344,24 +346,24 @@ export default function MClassPage() {
                       
                       {/* Pricing and Enrollment */}
                       <div className="md:ml-8 md:w-[320px]">
-                        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 space-y-6">
+                        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-lg border border-gray-700 p-6 space-y-6">
                           <div>
-                            <div className="text-lg font-medium text-gray-900 mb-2">Individual Class</div>
-                            <div className="text-3xl font-bold text-gray-900">
+                            <div className="text-lg font-medium text-gray-300 mb-2">Individual Class</div>
+                            <div className="text-3xl font-bold text-white">
                               ₹{level.price.individual}
-                              <span className="text-base font-normal text-gray-500">/month</span>
+                              <span className="text-base font-normal text-gray-400">/month</span>
                             </div>
                           </div>
-                          <div className="pt-4 border-t border-gray-100">
-                            <div className="text-lg font-medium text-gray-900 mb-2">Group Class</div>
-                            <div className="text-3xl font-bold text-gray-900">
+                          <div className="pt-4 border-t border-gray-700">
+                            <div className="text-lg font-medium text-gray-300 mb-2">Group Class</div>
+                            <div className="text-3xl font-bold text-white">
                               ₹{level.price.group}
-                              <span className="text-base font-normal text-gray-500">/month</span>
+                              <span className="text-base font-normal text-gray-400">/month</span>
                             </div>
                           </div>
                           <button 
                             onClick={() => handleEnrollClick(level)}
-                            className="w-full bg-orange-500 text-white py-3 px-4 rounded-lg font-medium text-lg hover:bg-orange-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-lg font-medium text-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 focus:ring-offset-gray-800 shadow-lg hover:shadow-pink-500/20"
                           >
                             View Plans & Enroll
                           </button>
@@ -376,11 +378,11 @@ export default function MClassPage() {
 
           {/* Subscription Modal */}
           {showSubscriptionModal && selectedLevel && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-                <div className="p-6 border-b border-gray-200 bg-gray-50">
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-700 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+                <div className="p-6 border-b border-gray-700 bg-gradient-to-r from-purple-900/40 to-pink-900/40">
                   <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-semibold text-gray-900">
+                    <h2 className="text-2xl font-semibold text-white">
                       {showPaymentStep ? 'Choose Payment Option' : 'Choose Your Subscription Plan'}
                     </h2>
                     <button 
@@ -388,7 +390,7 @@ export default function MClassPage() {
                         setShowSubscriptionModal(false);
                         setShowPaymentStep(false);
                       }}
-                      className="text-gray-500 hover:text-gray-700 transition-colors"
+                      className="text-gray-300 hover:text-white transition-colors"
                     >
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -414,41 +416,41 @@ export default function MClassPage() {
                         return (
                           <div 
                             key={plan.duration}
-                            className={`border rounded-lg p-6 cursor-pointer transition-all duration-200 ${
+                            className={`border rounded-xl p-6 cursor-pointer transition-all duration-200 ${
                               selectedPlan === plan
-                                ? 'border-orange-500 bg-orange-50/50 shadow'
-                                : 'border-gray-200 hover:border-orange-300 hover:shadow'
+                                ? 'border-pink-500 bg-gradient-to-br from-purple-900/30 to-pink-900/30 shadow-lg shadow-pink-500/10'
+                                : 'border-gray-700 hover:border-pink-500/50 hover:shadow-md bg-gray-800/50 hover:bg-gray-700/50'
                             }`}
                             onClick={() => setSelectedPlan(plan)}
                           >
                             <div className="flex justify-between items-start mb-6">
                               <div>
-                                <h3 className="text-2xl font-semibold text-gray-900 mb-2">{plan.name} Plan</h3>
-                                <p className="text-gray-600">Choose your preferred class type</p>
+                                <h3 className="text-2xl font-semibold text-white mb-2">{plan.name} Plan</h3>
+                                <p className="text-gray-300">Choose your preferred class type</p>
                               </div>
                               {plan.discount > 0 && (
-                                <div className="bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-medium">
+                                <div className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium shadow-md">
                                   Save {plan.discount}%
                                 </div>
                               )}
                             </div>
                             
                             <div className="grid md:grid-cols-2 gap-6">
-                              <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                                <div className="text-lg font-medium text-gray-900 mb-4">Individual Class</div>
-                                <div className="text-3xl font-bold text-gray-900 mb-3">
+                              <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700 shadow-sm hover:border-pink-500/50 transition-colors">
+                                <div className="text-lg font-medium text-gray-300 mb-4">Individual Class</div>
+                                <div className="text-3xl font-bold text-white mb-3">
                                   ₹{individualPrice}
-                                  <span className="text-base font-normal text-gray-500">/month</span>
+                                  <span className="text-base font-normal text-gray-400">/month</span>
                                 </div>
-                                <p className="text-gray-600">One-on-one personalized sessions</p>
+                                <p className="text-gray-400">One-on-one personalized sessions</p>
                               </div>
-                              <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                                <div className="text-lg font-medium text-gray-900 mb-4">Group Class</div>
-                                <div className="text-3xl font-bold text-gray-900 mb-3">
+                              <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700 shadow-sm hover:border-pink-500/50 transition-colors">
+                                <div className="text-lg font-medium text-gray-300 mb-4">Group Class</div>
+                                <div className="text-3xl font-bold text-white mb-3">
                                   ₹{groupPrice}
-                                  <span className="text-base font-normal text-gray-500">/person/month</span>
+                                  <span className="text-base font-normal text-gray-400">/person/month</span>
                                 </div>
-                                <p className="text-gray-600">Learn with peers (min. 2 students)</p>
+                                <p className="text-gray-400">Learn with peers (min. 2 students)</p>
                               </div>
                             </div>
                           </div>
@@ -459,85 +461,77 @@ export default function MClassPage() {
                     <div>
                       <div className="grid md:grid-cols-2 gap-6 mb-8">
                         <div
-                          className={`border rounded-lg p-6 cursor-pointer transition-all duration-200 ${
+                          className={`border rounded-xl p-6 cursor-pointer transition-all duration-200 ${
                             classType === 'individual'
-                              ? 'border-orange-500 bg-orange-50/50 shadow'
-                              : 'border-gray-200 hover:border-orange-300 hover:shadow'
+                              ? 'border-pink-500 bg-gradient-to-br from-purple-900/30 to-pink-900/30 shadow-lg shadow-pink-500/10'
+                              : 'border-gray-700 hover:border-pink-500/50 hover:shadow-md bg-gray-800/50 hover:bg-gray-700/50'
                           }`}
                           onClick={() => setClassType('individual')}
                         >
-                          <h3 className="text-2xl font-semibold text-gray-900 mb-3">Individual Class</h3>
-                          <p className="text-gray-600 mb-6">One-on-one sessions with the instructor</p>
-                          <div className="text-3xl font-bold text-gray-900">
+                          <h3 className="text-2xl font-semibold text-white mb-3">Individual Class</h3>
+                          <p className="text-gray-300 mb-6">One-on-one sessions with the instructor</p>
+                          <div className="text-3xl font-bold text-white">
                             ₹{calculateDiscountedPrice(
                               selectedLevel.price.individual * selectedPlan.duration,
                               selectedPlan.discount
                             )}
-                            <span className="text-base font-normal text-gray-500">/month</span>
+                            <span className="text-base font-normal text-gray-400">/month</span>
                           </div>
                         </div>
 
                         <div
-                          className={`border rounded-lg p-6 cursor-pointer transition-all duration-200 ${
+                          className={`border rounded-xl p-6 cursor-pointer transition-all duration-200 ${
                             classType === 'group'
-                              ? 'border-orange-500 bg-orange-50/50 shadow'
-                              : 'border-gray-200 hover:border-orange-300 hover:shadow'
+                              ? 'border-pink-500 bg-gradient-to-br from-purple-900/30 to-pink-900/30 shadow-lg shadow-pink-500/10'
+                              : 'border-gray-700 hover:border-pink-500/50 hover:shadow-md bg-gray-800/50 hover:bg-gray-700/50'
                           }`}
                           onClick={() => setClassType('group')}
                         >
-                          <h3 className="text-2xl font-semibold text-gray-900 mb-3">Group Class</h3>
-                          <p className="text-gray-600 mb-6">Learn together with others (min. 2 students)</p>
-                          <div className="text-3xl font-bold text-gray-900">
+                          <h3 className="text-2xl font-semibold text-white mb-3">Group Class</h3>
+                          <p className="text-gray-300 mb-6">Learn together with others (min. 2 students)</p>
+                          <div className="text-3xl font-bold text-white">
                             ₹{calculateGroupPrice(
                               selectedLevel.price.group,
                               selectedPlan.duration,
                               selectedPlan.discount
                             )}
-                            <span className="text-base font-normal text-gray-500">/person/month</span>
+                            <span className="text-base font-normal text-gray-400">/person/month</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Group Members Form */}
                       {classType === 'group' && (
-                        <div className="border rounded-lg p-6 mb-8 bg-white shadow-sm">
+                        <div className="border rounded-xl p-6 mb-8 bg-gray-800/50 shadow-sm">
                           <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-semibold text-gray-900">Group Members</h3>
-                            <button
-                              onClick={handleAddGroupMember}
-                              className="text-orange-500 hover:text-orange-600 font-medium flex items-center"
-                            >
-                              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                              </svg>
-                              Add Member
-                            </button>
+                            <h3 className="text-xl font-semibold text-white">Student Details</h3>
+                          
                           </div>
                           <div className="space-y-4">
                             {groupMembers.map((member, index) => (
-                              <div key={index} className="grid md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                              <div key={index} className="grid md:grid-cols-2 gap-4 p-4 bg-gray-700 rounded-lg">
                                 <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  <label className="block text-sm font-medium text-gray-200 mb-1">
                                     Name
                                   </label>
                                   <input
                                     type="text"
                                     value={member.name}
                                     onChange={(e) => handleGroupMemberChange(index, 'name', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 text-gray-200"
                                     placeholder="Enter name"
                                   />
                                 </div>
                                 <div className="flex gap-4">
                                   <div className="flex-1">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-sm font-medium text-gray-200 mb-1">
                                       Email
                                     </label>
                                     <input
                                       type="email"
                                       value={member.email}
                                       onChange={(e) => handleGroupMemberChange(index, 'email', e.target.value)}
-                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900"
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 text-gray-200"
                                       placeholder="Enter email"
                                     />
                                   </div>
@@ -555,11 +549,7 @@ export default function MClassPage() {
                               </div>
                             ))}
                           </div>
-                          {groupMembers.length < 2 && (
-                            <div className="mt-4 text-orange-600 text-sm bg-orange-50 p-4 rounded-lg border border-orange-200">
-                              * Minimum 2 students required for group class
-                            </div>
-                          )}
+                          
                         </div>
                       )}
                     </div>
@@ -570,17 +560,17 @@ export default function MClassPage() {
                       <>
                         <button
                           onClick={handleBackToPlans}
-                          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                          className="px-6 py-2 border border-gray-600 rounded-lg text-gray-200 hover:bg-gray-700/50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-pink-500"
                         >
                           Back
                         </button>
                         <button
                           onClick={handleSubscribe}
-                          disabled={!classType || isProcessingPayment || (classType === 'group' && (groupMembers.length < 2 || groupMembers.some(m => !m.email || !m.name)))}
-                          className={`px-6 py-2 rounded-lg text-white font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 ${
-                            classType && !isProcessingPayment && !(classType === 'group' && (groupMembers.length < 2 || groupMembers.some(m => !m.email || !m.name)))
-                              ? 'bg-orange-500 hover:bg-orange-600'
-                              : 'bg-gray-300 cursor-not-allowed'
+                          disabled={!classType || isProcessingPayment || (classType === 'group' && ( groupMembers.some(m => !m.email || !m.name)))}
+                          className={`px-6 py-2 rounded-lg text-white font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-pink-500 ${
+                            classType && !isProcessingPayment && !(classType === 'group' && ( groupMembers.some(m => !m.email || !m.name)))
+                              ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-pink-500/30'
+                              : 'bg-gray-700 text-gray-500 cursor-not-allowed'
                           }`}
                         >
                           {isProcessingPayment ? 'Processing...' : 'Proceed to Payment'}
@@ -590,17 +580,17 @@ export default function MClassPage() {
                       <>
                         <button
                           onClick={() => setShowSubscriptionModal(false)}
-                          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                          className="px-6 py-2 border border-gray-600 rounded-lg text-gray-200 hover:bg-gray-700/50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-pink-500"
                         >
                           Cancel
                         </button>
                         <button
                           onClick={handleContinueToPayment}
                           disabled={!selectedPlan}
-                          className={`px-6 py-2 rounded-lg text-white font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 ${
+                          className={`px-6 py-2 rounded-lg text-white font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-pink-500 ${
                             selectedPlan
-                              ? 'bg-orange-500 hover:bg-orange-600'
-                              : 'bg-gray-300 cursor-not-allowed'
+                              ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-pink-500/30'
+                              : 'bg-gray-700 text-gray-500 cursor-not-allowed'
                           }`}
                         >
                           Continue

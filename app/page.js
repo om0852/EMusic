@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Raleway, Playfair_Display } from 'next/font/google';
+import Typewriter from 'typewriter-effect';
 
 const raleway = Raleway({ subsets: ['latin'], variable: '--font-raleway' });
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
@@ -21,7 +22,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-br from-black via-purple-900 to-red-900"></div>
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center relative z-10 pt-16">
+          <div className="text-center relative z-10 pt-10 ">
             <motion.h1
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -30,17 +31,36 @@ export default function Home() {
             >
               Welcome to Musicoul Learning
             </motion.h1>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="text-2xl md:text-3xl font-bold text-yellow-400 mb-6 h-12"
+            >
+              <div className="text-3xl md:text-6xl font-bold mb-2">
+                <span className="text-white">Unleash your inner </span>
+                <Typewriter
+                  options={{
+                    strings: ['Musician', 'Artist','Singer','Dancer','Harmonist','Tabla Player','Percussionist','Pianist'],
+                    autoStart: true,
+                    loop: true,
+                    wrapperClassName: 'inline-block bg-gradient-to-r from-purple-500 via-pink-500 to-purple-600 bg-clip-text text-transparent',
+                    cursorClassName: 'text-pink-400',
+                  }}
+                />
+              </div>
+            </motion.div>
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto"
+              className="text-xl text-gray-300 mt-30 mb-12 max-w-2xl mx-auto"
             >
               Choose your preferred learning path and start your musical journey today
             </motion.p>
 
             {/* Class Options */}
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-2  gap-8 max-w-4xl mx-auto">
               {/* m-premium Card */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -148,7 +168,7 @@ export default function Home() {
                 <p className="text-gray-300 text-center mb-6">
                   Access our curated collection of video lessons and learn at your own pace.
                 </p>
-                <ul className="space-y-2 mb-6 h-[45%]">
+                <ul className="space-y-2 mb-6 h-[20%] md:h-[45%]">
                   <li className="flex items-center text-gray-300">
                     <span className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2"></span>
                     Video Tutorials
@@ -164,7 +184,7 @@ export default function Home() {
                 </ul>
                 <Link
                   href="/m-free"
-                  className="block w-full bg-gradient-to-r from-red-600 to-red-800 text-white text-center py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity"
+                  className="block w-full  bg-gradient-to-r from-red-600 to-red-800 text-white text-center py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity"
                 >
                   Explore M-Free
                 </Link>

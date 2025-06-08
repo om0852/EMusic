@@ -40,7 +40,6 @@ function calculateScheduleDates(startDate, schedule, durationMonths) {
 
   return dates;
 }
-
 export async function POST(req) {
   try {
     await connectDB();
@@ -69,8 +68,10 @@ export async function POST(req) {
     }
 
     // Verify subject and level exist
-    const subject = await Subject.findById(batchData.subject);
-    const level = await Level.findById(batchData.level);
+    const [subject, level] = await Promise.all([
+      Subject.findById(batchData.subject),
+      Level.findById(batchData.level)
+    ]);
 
     if (!subject || !level) {
       return NextResponse.json({ 
@@ -78,31 +79,75 @@ export async function POST(req) {
       }, { status: 400 });
     }
 
-    // Create new batch using level's dates
-    const startDate = new Date(); // Current date
-    let durationMonths;
-    
     // Set duration based on subscription plan
-    switch (batchData.subscription) {
-      case 'Monthly':
-        durationMonths = 1;
-        break;
-      case 'Quarterly':
-        durationMonths = 3;
-        break;
-      case 'Semi-Annual':
-        durationMonths = 6;
-        break;
-      case 'Annual':
-        durationMonths = 12;
-        break;
-      default:
-        durationMonths = 1;
-    }
+    const durationMap = {
+      'Monthly': 1,
+      'Quarterly': 3,
+      'Semi-Annual': 6,
+      'Annual': 12
+    };
+    
+    const durationMonths = durationMap[batchData.subscription] || 1;
 
-    // Calculate end date
+    // Calculate start and end dates
+    const startDate = new Date();
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + durationMonths);
+
+    // Check if this is a group enrollment
+    if (batchData.type === 'group') {
+      // Find an existing batch with the same subject, level, and subscription
+      const existingBatch = await Batch.findOne({
+        subject: batchData.subject,
+        level: batchData.level,
+        subscription: batchData.subscription,
+        status: 'Active',
+        endDate: { $gt: new Date() } // Only consider active batches
+      });
+
+      if (existingBatch) {
+        // Add student to existing batch
+        const studentEmails = batchData.students.map(s => s.email);
+        
+        // Check if any student is already in this batch
+        const existingStudents = existingBatch.students.filter(s => 
+          studentEmails.includes(s.email)
+        );
+
+        if (existingStudents.length > 0) {
+          return NextResponse.json({ 
+            message: 'One or more students are already enrolled in this batch' 
+          }, { status: 400 });
+        }
+
+        // Add new students to the batch
+        const newStudents = batchData.students.map(student => ({
+          userId: student.userId || user._id,
+          email: student.email
+        }));
+
+        existingBatch.students.push(...newStudents);
+        await existingBatch.save();
+
+        // Update user's batches
+        await User.updateMany(
+          { _id: { $in: newStudents.map(s => s.userId) } },
+          { $addToSet: { batches: existingBatch._id } }
+        );
+
+        const populatedBatch = await Batch.findById(existingBatch._id)
+          .populate('subject', 'name description')
+          .populate('level', 'name description')
+          .populate('teacher', 'name email')
+          .populate('students.userId', 'name email');
+
+        return NextResponse.json({
+          message: 'Students added to existing batch successfully',
+          batch: populatedBatch
+        });
+      }
+      // If no existing batch, continue to create a new one
+    }
 
     // Calculate all session dates
     const schedule = [];
@@ -125,15 +170,28 @@ export async function POST(req) {
           });
         }
       });
-      
-      // Move to next day
       currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    // Prepare students array
+    let students = [];
+    if (batchData.type === 'individual') {
+      students = [{
+        userId: user._id,
+        email: user.email
+      }];
+    } else if (batchData.type === 'group' && batchData.students) {
+      students = batchData.students.map(student => ({
+        userId: student.userId || user._id,
+        email: student.email
+      }));
     }
 
     // Create new batch
     const batch = new Batch({
       subject: batchData.subject,
       level: batchData.level,
+      type: batchData.type || 'individual',
       startDate: startDate,
       endDate: endDate,
       schedule: schedule,
@@ -141,42 +199,18 @@ export async function POST(req) {
       subscription: batchData.subscription,
       price: batchData.price,
       status: 'Active',
-      description: batchData.description || ''
+      description: batchData.description || '',
+      students: students
     });
-
-    // Add the enrolled student(s)
-    if (batchData.type === 'individual') {
-      batch.students.push({
-        userId: user._id,
-        email: user.email
-      });
-    } else if (batchData.type === 'group') {
-      // Validate minimum group size
-      if (!batchData.students || batchData.students.length < 2) {
-        return NextResponse.json({ 
-          message: 'Group classes require at least 2 students' 
-        }, { status: 400 });
-      }
-
-      // Add all group members
-      batch.students = batchData.students.map(student => ({
-        userId: student.userId || user._id,
-        email: student.email
-      }));
-    } else {
-      return NextResponse.json({ 
-        message: 'Invalid class type' 
-      }, { status: 400 });
-    }
 
     await batch.save();
 
-    // Add batch to user's batches
-    if (!user.batches) {
-      user.batches = [];
-    }
-    user.batches.push(batch._id);
-    await user.save();
+    // Add batch to users' batches
+    const userIds = students.map(s => s.userId);
+    await User.updateMany(
+      { _id: { $in: userIds } },
+      { $addToSet: { batches: batch._id } }
+    );
 
     // Populate the batch with referenced data
     const populatedBatch = await Batch.findById(batch._id)
@@ -198,7 +232,6 @@ export async function POST(req) {
     );
   }
 }
-
 export async function GET(req) {
   try {
     await connectDB();
