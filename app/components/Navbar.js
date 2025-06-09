@@ -5,6 +5,16 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { FaMusic, FaUserCircle } from 'react-icons/fa';
 import Image from 'next/image';
+import { Raleway, Playfair_Display } from 'next/font/google';
+
+const raleway = Raleway({ subsets: ['latin'], variable: '--font-raleway' });
+const playfair = Playfair_Display({ 
+  subsets: ['latin'], 
+  variable: '--font-playfair',
+  weight: ['400', '700'], // Include the font weights you need
+  display: 'swap',
+});
+
 
 export default function Navbar() {
   const [mounted, setMounted] = useState(false);
@@ -95,7 +105,6 @@ export default function Navbar() {
     );
   }
 
-  const isPublicRoute = pathname === '/' || pathname === '/login' || pathname === '/signup';
 
   // useEffect(() => {
   //   if (!isLoggedIn && !isPublicRoute) {
@@ -106,7 +115,7 @@ export default function Navbar() {
     <nav className="bg-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          <div className="flex">
+          <div className={`flex`} style={{fontFamily:"playfair display"}}>
             <Link href="/" className="flex-shrink-0 flex items-center">
               <Image
                 src="/Musicoul_logo.jpg"
@@ -115,7 +124,7 @@ export default function Navbar() {
                 height={40}
                 className="rounded-md"
               />
-              <span className="ml-2 text-2xl font-bold text-black">Musicoul</span>
+              <span className={`ml-2 text-2xl font-bold text-black ${playfair.variable}`}>Musicoul</span>
             </Link>
           </div>
 
