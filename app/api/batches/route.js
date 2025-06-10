@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/app/utils/db';
 import User from '@/app/models/User';
 import Batch from '@/app/models/Batch';
+import Level from '@/app/models/Level'
 import Subject from '@/app/models/Subject';
 import jwt from 'jsonwebtoken';
 

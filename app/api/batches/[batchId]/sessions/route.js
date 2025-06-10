@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/app/utils/db';
 import Batch from '@/app/models/Batch';
 import { verifyAuth } from '../../../../utils/auth';
-
+import User from '@/app/models/User';
+import Level from '@/app/models/Level'
+import Subject from '@/app/models/Subject';
 export async function GET(request, { params }) {
   try {
     await connectDB();

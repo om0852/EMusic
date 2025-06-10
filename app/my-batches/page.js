@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { 
   FaCalendar, 
   FaClock, 
+  FaSync,
   FaUsers, 
   FaChalkboardTeacher, 
   FaVideo, 
@@ -15,9 +16,11 @@ import {
   FaUpload,
   FaDownload,
   FaComment,
-  FaPaperPlane
+  FaPaperPlane,
+  FaSpinner
 } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function MyBatches() {
   const [batches, setBatches] = useState([]);
@@ -301,47 +304,81 @@ export default function MyBatches() {
 
   const getRandomGradient = () => {
     const gradients = [
-      'from-orange-400 to-purple-500',
-      'from-blue-400 to-orange-400',
-      'from-teal-400 to-orange-400',
-      'from-orange-400 to-pink-400',
-      'from-indigo-400 to-orange-400',
-      'from-orange-400 to-cyan-400'
+      'from-red-400 to-purple-500',
+      'from-blue-400 to-red-400',
+      'from-teal-400 to-red-400',
+      'from-red-400 to-pink-400',
+      'from-indigo-400 to-red-400',
+      'from-red-400 to-cyan-400'
     ];
     return gradients[Math.floor(Math.random() * gradients.length)];
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-orange-900 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="animate-pulse space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white dark:bg-orange-800 p-6 rounded-lg shadow-md">
-                <div className="h-4 bg-gray-200 dark:bg-orange-700 rounded w-1/4"></div>
-                <div className="space-y-3 mt-4">
-                  <div className="h-4 bg-gray-200 dark:bg-orange-700 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-orange-700 rounded w-1/2"></div>
-                </div>
-              </div>
-            ))}
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-black to-pink-900">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center p-8 rounded-2xl bg-black/50 backdrop-blur-sm border border-white/10 shadow-2xl"
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="mx-auto w-16 h-16 flex items-center justify-center"
+          >
+            <FaSpinner className="text-4xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400" />
+          </motion.div>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="mt-6 text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-purple-200"
+          >
+            Loading your learning journey...
+          </motion.p>
+          <motion.p 
+            className="mt-2 text-purple-300 text-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+          >
+            Just a moment while we prepare your dashboard
+          </motion.p>
+          <div className="h-4 bg-purple-900/30 rounded-full w-1/2 mt-6 overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-pulse"></div>
           </div>
-        </div>
+        </motion.div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-orange-900 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 dark:border-red-500 p-4 rounded-md">
-            <div className="flex">
-              <div className="ml-3">
-                <p className="text-sm text-red-700 dark:text-red-400">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50 dark:from-gray-900 dark:to-red-950 py-12 px-4">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden border border-red-200 dark:border-red-900/50">
+            <div className="bg-red-500 dark:bg-red-900/80 px-6 py-4 flex items-center">
+              <FaExclamationCircle className="text-white text-2xl mr-3" />
+              <h2 className="text-lg font-bold text-white">Error Loading Batches</h2>
+            </div>
+            <div className="p-6">
+              <p className="text-gray-700 dark:text-gray-300 mb-6">
+                We encountered an issue while loading your batches. Please try again later or contact support if the problem persists.
+              </p>
+              <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-600 p-4 rounded">
+                <p className="text-sm text-red-700 dark:text-red-300">
                   {error}
                 </p>
               </div>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-6 px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center mx-auto"
+              >
+                <FaSync className="mr-2" />
+                Try Again
+              </button>
             </div>
           </div>
         </div>
@@ -350,63 +387,95 @@ export default function MyBatches() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-orange-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-orange-600 flex items-center">
-            <FaGraduationCap className="mr-3 text-indigo-500" />
-            My Learning Journey
-          </h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50 dark:from-gray-900 dark:to-red-950 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-red-600 dark:text-red-400 flex items-center">
+              <FaGraduationCap className="mr-3 text-indigo-500 dark:text-indigo-400" />
+              My Learning Journey
+            </h1>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">
+              Track and manage all your enrolled courses in one place
+            </p>
+          </div>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200 flex items-center self-start sm:self-center"
+          >
+            <FaSync className="mr-2" />
+            Refresh
+          </button>
         </div>
 
         {batches.length === 0 ? (
-          <div className="bg-white shadow-lg p-6 rounded-lg text-center border border-orange-100">
-            <p className="text-gray-600">You are not enrolled in any batches yet.</p>
+          <div className="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-8 text-center border border-red-100 dark:border-red-900/50 max-w-2xl mx-auto">
+            <div className="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FaBookOpen className="text-red-500 dark:text-red-400 text-3xl" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">No Batches Found</h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">You are not enrolled in any batches yet. Explore our courses to get started!</p>
+            <button className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
+              Browse Courses
+            </button>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {batches.map((batch) => (
-              <div key={batch._id} className="group relative bg-white shadow-lg rounded-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-orange-100" style={{backgroundImage: `url(${batch.subject.image})`}}>
-                <div className={`h-3 bg-gradient-to-r ${getRandomGradient()}`} />
-                <div className="p-6">
-                  <div className="flex justify-between items-start">
+              <div 
+                key={batch._id} 
+                className="group relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl border border-gray-100 dark:border-gray-700/50 flex flex-col h-full"
+              >
+                <div className={`h-2 bg-gradient-to-r ${getRandomGradient()}`} />
+                <div className="p-6 flex-1 flex flex-col">
+                  <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h2 className="text-xl font-semibold text-indigo-600">{batch.subject.name}</h2>
-                      <p className="text-sm text-teal-600 mt-1">{batch.level.name}</p>
+                      <h2 className="text-xl font-bold text-gray-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                        {batch.subject.name}
+                      </h2>
+                      <p className="text-sm text-teal-600 dark:text-teal-400 mt-1">
+                        {batch.level.name}
+                      </p>
                     </div>
-                    <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                      batch.status === 'Active' ? 'bg-green-100 text-green-700 border border-green-200' :
-                      batch.status === 'Completed' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
-                      batch.status === 'Cancelled' ? 'bg-red-100 text-red-700 border border-red-200' :
-                      'bg-orange-100 text-orange-700 border border-orange-200'
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                      batch.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800' :
+                      batch.status === 'Completed' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800' :
+                      batch.status === 'Cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800' :
+                      'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800'
                     }`}>
                       {batch.status}
                     </span>
                   </div>
 
-                  <div className="mt-4 space-y-3">
-                    <div className="flex items-center text-sm text-purple-600">
-                      <FaCalendar className="mr-2 text-purple-500" />
-                      <span>{formatDate(batch.startDate)} - {formatDate(batch.endDate)}</span>
+                  <div className="mt-4 space-y-3 flex-1">
+                    <div className="flex items-center text-sm text-purple-600 dark:text-purple-400">
+                      <FaCalendar className="mr-2 text-purple-500 dark:text-purple-400 flex-shrink-0" />
+                      <span className="truncate">
+                        {formatDate(batch.startDate)} - {formatDate(batch.endDate)}
+                      </span>
                     </div>
 
-                    <div className="flex items-center text-sm text-cyan-600">
-                      <FaUsers className="mr-2 text-cyan-500" />
+                    <div className="flex items-center text-sm text-cyan-600 dark:text-cyan-400">
+                      <FaUsers className="mr-2 text-cyan-500 dark:text-cyan-400 flex-shrink-0" />
                       <span>
                         {batch.students.length} / {batch.maxStudents} students
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-6">
+                  <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
                     <div className="flex justify-between items-center">
                       <div>
-                        <span className="text-sm text-gray-600">{batch.subscription}</span>
-                        <p className="text-lg font-semibold text-orange-600">₹{batch.price}/month</p>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          {batch.subscription}
+                        </span>
+                        <p className="text-lg font-bold text-red-600 dark:text-red-400">
+                          ₹{batch.price}/month
+                        </p>
                       </div>
                       <button
                         onClick={() => setSelectedBatch(batch)}
-                        className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-md transition-all duration-300 flex items-center cursor-pointer shadow-md hover:shadow-lg"
+                        className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm font-medium rounded-lg transition-all duration-300 flex items-center cursor-pointer shadow-md hover:shadow-lg"
                       >
                         <FaInfoCircle className="mr-2" />
                         View Details
@@ -689,4 +758,4 @@ export default function MyBatches() {
       </div>
     </div>
   );
-} 
+};  

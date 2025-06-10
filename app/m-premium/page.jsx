@@ -327,21 +327,7 @@ export default function MClassPage() {
                       <div className="mb-6 md:mb-0 md:flex-1">
                         <h3 className="text-2xl font-semibold text-white mb-3">{level.name}</h3>
                         <p className="text-gray-300 mb-6">{level.description}</p>
-                        
-                        {/* Schedule */}
-                        <div className="space-y-3">
-                          <h4 className="text-lg font-medium text-white mb-4">Available Time Slots</h4>
-                          <div className="grid sm:grid-cols-2 gap-3">
-                            {level.schedule.map((slot, index) => (
-                              <div key={index} className="flex items-center text-base text-gray-200 bg-gray-800 rounded-lg p-4 border border-gray-700 hover:border-pink-500/50 transition-colors">
-                                <svg className="w-5 h-5 mr-3 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                {slot.day} at {slot.time}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
+                     
                       </div>
                       
                       {/* Pricing and Enrollment */}
@@ -450,7 +436,7 @@ export default function MClassPage() {
                                   ₹{groupPrice}
                                   <span className="text-base font-normal text-gray-400">/person/month</span>
                                 </div>
-                                <p className="text-gray-400">Learn with peers (min. 2 students)</p>
+                                <p className="text-gray-400">Learn with peers </p>
                               </div>
                             </div>
                           </div>

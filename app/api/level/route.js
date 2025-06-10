@@ -2,7 +2,10 @@ import LevelTypeModel from "@/app/models/Level";
 import SubjectModel from "@/app/models/Subject";
 import { connectDB } from "@/app/utils/db";
 import { NextResponse } from "next/server";
-
+import User from '@/app/models/User';
+import Batch from '@/app/models/Batch';
+import Level from '@/app/models/Level'
+import Subject from '@/app/models/Subject';
 // Helper function to calculate session dates
 function calculateSessionDates(startDate, schedule, durationMonths) {
   const dates = [];
