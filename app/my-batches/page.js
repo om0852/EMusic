@@ -305,11 +305,11 @@ export default function MyBatches() {
   const getRandomGradient = () => {
     const gradients = [
       'from-red-400 to-purple-500',
-      'from-blue-400 to-red-400',
-      'from-teal-400 to-red-400',
-      'from-red-400 to-pink-400',
-      'from-indigo-400 to-red-400',
-      'from-red-400 to-cyan-400'
+      'from-red-400 to-purple-500',
+      'from-red-400 to-purple-500',
+      'from-red-400 to-purple-500',
+      'from-red-400 to-purple-500',
+      'from-red-400 to-purple-500'
     ];
     return gradients[Math.floor(Math.random() * gradients.length)];
   };
@@ -478,7 +478,7 @@ export default function MyBatches() {
                         className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm font-medium rounded-lg transition-all duration-300 flex items-center cursor-pointer shadow-md hover:shadow-lg"
                       >
                         <FaInfoCircle className="mr-2" />
-                        View Details
+                        Enter Class
                       </button>
                     </div>
                   </div>
