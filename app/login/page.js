@@ -71,6 +71,7 @@ export default function Login() {
         </h2>
         <p className="mt-3 text-center text-sm text-gray-400">
           Don't have an account?{' '}
+          
           <Link 
             href="/signup" 
             className="font-medium text-pink-400 hover:text-pink-300 transition-colors"

@@ -511,7 +511,7 @@ export default function EditBatchPage({ params }) {
               <div className="flex items-center space-x-2 mt-2">
                 <input
                   type="file"
-                  accept=".pdf"
+                  accept="*"
                   onChange={(e) => handleFileChange(e, 'file', setNote)}
                   className="hidden"
                   id="noteFile"
