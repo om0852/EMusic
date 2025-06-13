@@ -38,3 +38,15 @@ export async function GET(request) {
         return NextResponse.json({ message: "Batch not found" }, { status: 404 })
     }
 }
+
+export async function DELETE(request){
+    const {id,folderName} = await request.json();
+    await connectDB();
+    const batch = await Batch.findById(id);
+    if(!batch){
+        return NextResponse.json({message:"Batch not found"},{status:404})
+    }
+    batch.folder = batch.folder.filter((folder)=>folder!==folderName);
+    await batch.save();
+    return NextResponse.json({message:"Folder deleted successfully"},{status:200})
+}
