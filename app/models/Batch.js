@@ -12,6 +12,9 @@ const noteSchema = new mongoose.Schema({
   file: {
     type: String // URL to the PDF file
   },
+  folder:{
+    type:String,
+  },
   date: {
     type: Date,
     default: Date.now
@@ -163,9 +166,12 @@ const batchSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  folder:{
+    type:[String]
+  },
   maxStudents: {
     type: Number,
-    default: 10
+    default: 30
   },
   currentStudents: {
     type: Number,
