@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FaCalendar, FaClock, FaPlus, FaTrash, FaSave, FaArrowLeft, FaVideo, FaLock, FaUpload, FaBook, FaTasks } from 'react-icons/fa';
 import { Toaster, toast } from 'react-hot-toast';
 import AssignmentSection from '@/app/components/AssignmentSection';
-
+import Modal from '@/app/components/Modal';
 // Common button styles
 const buttonStyles = {
   primary: "flex items-center justify-center bg-primary dark:bg-primary-dark text-black dark:text-white px-4 py-2 rounded-md hover:bg-primary-dark dark:hover:bg-primary transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
@@ -19,7 +19,7 @@ const getNextOccurrence = (dayName, startTime) => {
   const today = new Date();
   const todayDay = today.getDay();
   const targetDay = days.indexOf(dayName);
-  
+
   // If it's the same day, check the time
   if (todayDay === targetDay) {
     const now = new Date();
@@ -32,13 +32,13 @@ const getNextOccurrence = (dayName, startTime) => {
       return today;
     }
   }
-  
+
   // Calculate days until next occurrence
   let daysUntilNext = targetDay - todayDay;
   if (daysUntilNext <= 0 && (todayDay !== targetDay || daysUntilNext < 0)) {
     daysUntilNext += 7;
   }
-  
+
   const nextDate = new Date();
   nextDate.setDate(today.getDate() + daysUntilNext);
   return nextDate;
@@ -47,14 +47,15 @@ const getNextOccurrence = (dayName, startTime) => {
 export default function EditBatchPage({ params }) {
   const router = useRouter();
   const { batchId } = params;
-  
+
   const [batch, setBatch] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
-
+  const [openFolderModel, setOpenFolderModel] = useState(false)
   // Form states
   const [schedule, setSchedule] = useState([]);
+  const [folderName, setFolderName] = useState("")
   const [newSchedule, setNewSchedule] = useState({
     day: 'Monday',
     startTime: '',
@@ -69,7 +70,8 @@ export default function EditBatchPage({ params }) {
   const [note, setNote] = useState({
     title: '',
     content: '',
-    file: null
+    file: null,
+    folder:null
   });
 
   const [assignments, setAssignments] = useState([]);
@@ -108,7 +110,7 @@ export default function EditBatchPage({ params }) {
       const response = await fetch(`/api/admin/batches/${batchId}/assignments`, {
         credentials: 'include'
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch assignments');
       }
@@ -129,11 +131,11 @@ export default function EditBatchPage({ params }) {
     // Get the next occurrence of the selected day, passing the start time
     const nextDate = getNextOccurrence(newSchedule.day, newSchedule.startTime);
 
-    setSchedule([...schedule, { 
+    setSchedule([...schedule, {
       ...newSchedule,
       date: nextDate // Store the full date object
     }]);
-    
+
     setNewSchedule({
       day: 'Monday',
       startTime: '',
@@ -148,34 +150,31 @@ export default function EditBatchPage({ params }) {
   const handleFileChange = async (e, type, setter) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.type !== 'application/pdf') {
-        toast.error('Only PDF files are allowed');
-        return;
-      }
-      
+    
+
       // Show loading toast
       const loadingToast = toast.loading('Uploading file...');
-      
+
       try {
         const formData = new FormData();
         formData.append('file', file);
-        
+
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
           credentials: 'include'
         });
-        
+
         if (!response.ok) {
           throw new Error('Failed to upload file');
         }
-        
+
         const data = await response.json();
         setter(prev => ({
           ...prev,
           file
         }));
-        
+
         // Dismiss loading toast and show success
         toast.dismiss(loadingToast);
         toast.success('File uploaded successfully!');
@@ -191,18 +190,18 @@ export default function EditBatchPage({ params }) {
   const uploadFile = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
-    
+
     try {
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
         credentials: 'include'
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to upload file');
       }
-      
+
       const data = await response.json();
       return data.url;
     } catch (err) {
@@ -242,7 +241,8 @@ export default function EditBatchPage({ params }) {
       setNote({
         title: '',
         content: '',
-        file: null
+        file: null,
+        folder:null
       });
 
       await fetchBatch();
@@ -253,7 +253,38 @@ export default function EditBatchPage({ params }) {
       toast.error(err.message);
     }
   };
+  const handleAddFolder = async () => {
+    if (!folderName) {
+      toast.error('Please enter a folder name');
+      return;
+    }
+    const loadingToast = toast.loading('Adding folder...');
+    try {
+      const response = await fetch(`/api/admin/batches/${batchId}/folder`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          folderName: folderName,
+          id: batchId
+        }),
+        credentials: 'include'
+      });
 
+      if (!response.ok) {
+        throw new Error('Failed to add folder');
+      }
+
+      setFolderName('');
+      await fetchBatch();
+      toast.dismiss(loadingToast);
+      toast.success('Folder added successfully!');
+    } catch (err) {
+      toast.dismiss(loadingToast);
+      toast.error(err.message);
+    }
+  }
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -323,7 +354,7 @@ export default function EditBatchPage({ params }) {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           success: {
@@ -412,7 +443,7 @@ export default function EditBatchPage({ params }) {
             <FaCalendar className="mr-2" />
             Schedule Management
           </h2>
-          
+
           {/* Add New Schedule */}
           <div className="mb-6 space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -482,8 +513,75 @@ export default function EditBatchPage({ params }) {
             <FaBook className="mr-2" />
             Add Notes
           </h2>
-          
-          <div className="space-y-4">
+          <div>
+            <button onClick={() => setOpenFolderModel(true)} className={buttonStyles.primary}>Add Folder</button>
+            <Modal open={openFolderModel} onClose={() => setOpenFolderModel(false)} theme="red">
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 text-black">Create New Folder</h2>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Enter a name for your new folder</p>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="folderName" className="block text-sm font-medium text-gray-700 text-gray-700 mb-1">
+                      Folder Name
+                    </label>
+                    <input
+                      type="text"
+                      id="folderName"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
+                      placeholder="e.g., Study Materials"
+                      value={folderName}
+                      onChange={(e) => setFolderName(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="flex justify-end space-x-3 pt-2">
+
+                    <button
+                      type="button"
+                      onClick={handleAddFolder}
+                      disabled={!folderName.trim()}
+                      className={`px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors ${!folderName.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      Create Folder
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </Modal>
+          </div>
+          {/* Folder Selection */}
+          <div className="mt-4 mb-6">
+            <label htmlFor="folderSelect" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Select Folder
+            </label>
+            <div className="relative">
+              <select
+                id="folderSelect"
+                onChange={(e) => setFolderName(e.target.value)}
+                className="block w-full px-4 py-2.5 text-base text-gray-900 dark:text-white bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none transition-colors duration-200"
+                value={folderName}
+              >
+                <option value="" disabled>Select a folder</option>
+                {batch?.folder?.map((data, index) => (
+                  <option 
+                    key={`${data}-${index}`} 
+                    value={data}
+                    className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  >
+                    {data}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg className="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          {folderName && <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Title
@@ -491,7 +589,7 @@ export default function EditBatchPage({ params }) {
               <input
                 type="text"
                 value={note.title}
-                onChange={(e) => setNote({ ...note, title: e.target.value })}
+                onChange={(e) => setNote({ ...note, title: e.target.value ,folder:folderName})}
                 placeholder="Note title"
                 className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark transition-colors duration-200"
               />
@@ -503,7 +601,7 @@ export default function EditBatchPage({ params }) {
               </label>
               <textarea
                 value={note.content}
-                onChange={(e) => setNote({ ...note, content: e.target.value })}
+                onChange={(e) => setNote({ ...note, content: e.target.value,folder:folderName })}
                 placeholder="Note content"
                 rows={4}
                 className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark transition-colors duration-200"
@@ -533,7 +631,7 @@ export default function EditBatchPage({ params }) {
               <FaPlus className="mr-2" />
               Add Note
             </button>
-          </div>
+          </div>}
 
           {/* Previous Notes */}
           {batch?.notes?.length > 0 && (
