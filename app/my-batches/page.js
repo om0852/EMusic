@@ -8,6 +8,7 @@ import {
   FaUsers,
   FaChalkboardTeacher,
   FaVideo,
+  FaFilePdf,
   FaHistory,
   FaInfoCircle,
   FaGraduationCap,
@@ -15,13 +16,15 @@ import {
   FaTasks,
   FaUpload,
   FaDownload,
-  FaComment,
+  FaTimes,
   FaPaperPlane,
   FaSpinner,
   FaExclamationCircle
 } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import PdfViewer from '../components/PdfViewer';
+import MediaViewer from '../components/MediaViewer';
 
 export default function MyBatches() {
   const [batches, setBatches] = useState([]);
@@ -38,6 +41,18 @@ export default function MyBatches() {
   const [activeTab, setActiveTab] = useState('sessions');
   const [selectedPdf, setSelectedPdf] = useState(null);
   const [folderName, setFolderName] = useState("");
+
+  // helper to determine file type
+  const getFileType = (url) => {
+    if (!url) return 'other';
+    const ext = url.split('.').pop().toLowerCase();
+    if (ext === 'pdf') return 'pdf';
+    if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) return 'image';
+    if (['mp4', 'webm', 'ogg'].includes(ext)) return 'video';
+    if (['mp3', 'wav', 'aac', 'ogg'].includes(ext)) return 'audio';
+    return 'other';
+  };
+
   useEffect(() => {
     fetchBatches();
   }, []);
@@ -722,65 +737,61 @@ export default function MyBatches() {
                   {/* Notes Tab */}
                   {activeTab === 'notes' && (
                     <div className="space-y-6">
-                        <div className="relative w-full max-w-xs">
-                          <label htmlFor="folder-select" className="block text-sm font-medium text-gray-800 mb-2">
-                            Select Folder
-                          </label>
-                          <div className="relative">
-                            <select
-                              id="folder-select"
-                              onChange={handleFolderName}
-                              className="block w-full px-4 py-2.5 text-base text-white bg-gray-800 border-2 border-purple-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent appearance-none transition-all duration-200 pr-10"
-                              value={folderName}
-                            >
-                              <option value="" disabled className="bg-gray-800 text-white">
-                                Select a folder
-                              </option>
-                              {selectedBatch?.folder?.map((folder, index) => (
-                                <option
-                                  key={`${folder}-${index}`}
-                                  value={folder}
-                                  className="bg-gray-800 text-white hover:bg-purple-600"
-                                >
-                                  {folder}
-                                </option>
-                              ))}
-                            </select>
-                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                              <svg
-                                className="w-5 h-5 text-purple-400"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
+                      <div className="relative w-full max-w-xs">
+                        <label htmlFor="folder-select" className="block text-sm font-medium text-gray-800 mb-2">
+                          Select Folder
+                        </label>
+                        <div className="relative">
+                          <select
+                            id="folder-select"
+                            onChange={handleFolderName}
+                            className="block w-full px-4 py-2.5 text-base text-white bg-gray-800 border-2 border-purple-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent appearance-none transition-all duration-200 pr-10"
+                            value={folderName}
+                          >
+                            <option value="" disabled className="bg-gray-800 text-white">
+                              Select a folder
+                            </option>
+                            {selectedBatch?.folder?.map((folder, index) => (
+                              <option
+                                key={`${folder}-${index}`}
+                                value={folder}
+                                className="bg-gray-800 text-white hover:bg-purple-600"
                               >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </div>
+                                {folder}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <svg
+                              className="w-5 h-5 text-purple-400"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
                           </div>
                         </div>
+                      </div>
 
-                      <div >
+                      <div>
                         {folderName && (
                           <div>
                             {notes.map((note) => {
                               if (note.folder == folderName) {
-
                                 return (
                                   <div key={note._id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                                     <div className="flex justify-between items-start mb-4">
-                                      <div>
-                                        <h4 className="text-lg font-semibold text-gray-900">
-                                          {note.title}
-                                        </h4>
-
-                                      </div>
+                                      <h4 className="text-lg font-semibold text-gray-900">
+                                        {note.title}
+                                      </h4>
                                       {note.file && (
                                         <button
-                                          onClick={() => setSelectedPdf(note)}
+                                          onClick={() => setSelectedPdf({ ...note, type: getFileType(note.file) })}
                                           className="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white rounded flex items-center text-sm transition-colors"
                                         >
                                           <FaBook className="mr-2" />
@@ -788,18 +799,16 @@ export default function MyBatches() {
                                         </button>
                                       )}
                                     </div>
-                                    <p className="text-gray-700 whitespace-pre-wrap">
+                                    <p className="text-gray-700 whitespace-pre-wrap mt-2">
                                       {note.content}
                                     </p>
                                   </div>
-                                )
+                                );
                               }
                             })}
                           </div>
-                        )
-                        }
+                        )}
                       </div>
-
                     </div>
                   )}
                 </div>
@@ -810,58 +819,53 @@ export default function MyBatches() {
 
         {/* PDF Viewer Modal */}
         {selectedPdf && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60]">
-    <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden">
-      <div className="flex justify-between items-center p-4 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900">
-          {selectedPdf.title}
-        </h3>
-        <button
-          onClick={() => setSelectedPdf(null)}
-          className="text-gray-400 hover:text-gray-600 transition-colors"
-        >
-          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+            <div className="bg-gradient-to-br from-gray-900 to-purple-900 rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden border border-purple-500/30">
+              {/* Header */}
+              <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-900/80 to-pink-900/80">
+                <div className="flex items-center space-x-3">
+                  <FaFilePdf className="text-red-400 text-2xl" />
+                  <h3 className="text-lg font-bold text-white">
+                    {selectedPdf.title}
+                  </h3>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-purple-200 bg-black/30 px-2 py-1 rounded">
+                    View Only
+                  </span>
+                  <button
+                    onClick={() => setSelectedPdf(null)}
+                    className="p-1.5 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+                    title="Close"
+                  >
+                    <FaTimes className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
 
-      <div className="relative w-full h-[80vh]">
-        {selectedPdf.type === 'pdf' && (
-          <iframe
-            src={`https://docs.google.com/gview?url=${encodeURIComponent(selectedPdf.file)}&embedded=true`}
-            className="absolute inset-0 w-full h-full"
-            title={selectedPdf.title}
-            sandbox="allow-scripts allow-same-origin"
-          />
+              {/* PDF Container */}
+              <div className="relative w-full h-[80vh] bg-gray-900">
+                {selectedPdf.file ? (
+                  <div className="w-full h-full">
+                    {selectedPdf.type === 'pdf' ? (
+                      <PdfViewer file={selectedPdf.file} />
+                    ) : (
+                      <MediaViewer file={selectedPdf.file} type={selectedPdf.type} />
+                    )}
+                  </div>
+                ) : (
+                  <div className="h-full flex items-center justify-center text-gray-400">
+                    <div className="text-center p-8">
+                      <FaFilePdf className="mx-auto text-6xl mb-4 text-red-400/30" />
+                      <p className="text-lg">PDF preview not available</p>
+                      <p className="text-sm mt-2 text-gray-500">The PDF file could not be loaded</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         )}
-
-        {selectedPdf.type === 'image' && (
-          <img
-            src={selectedPdf.file}
-            alt={selectedPdf.title}
-            className="absolute inset-0 w-full h-full object-contain"
-            draggable="false"
-            onContextMenu={(e) => e.preventDefault()}
-          />
-        )}
-
-        {selectedPdf.type === 'video' && (
-          <video
-            src={selectedPdf.file}
-            controls
-            controlsList="nodownload nofullscreen noremoteplayback"
-            className="absolute inset-0 w-full h-full"
-            onContextMenu={(e) => e.preventDefault()}
-            disablePictureInPicture
-            muted
-          />
-        )}
-      </div>
-    </div>
-  </div>
-)}
-
       </div>
     </div>
   );
