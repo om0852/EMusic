@@ -810,31 +810,58 @@ export default function MyBatches() {
 
         {/* PDF Viewer Modal */}
         {selectedPdf && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60]">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden">
-              <div className="flex justify-between items-center p-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {selectedPdf.title}
-                </h3>
-                <button
-                  onClick={() => setSelectedPdf(null)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <div className="relative w-full h-[80vh]">
-                <iframe
-                  src={`${selectedPdf.file}#toolbar=0&navpanes=0&scrollbar=0`}
-                  className="absolute inset-0 w-full h-full"
-                  title={selectedPdf.title}
-                />
-              </div>
-            </div>
-          </div>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60]">
+    <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden">
+      <div className="flex justify-between items-center p-4 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900">
+          {selectedPdf.title}
+        </h3>
+        <button
+          onClick={() => setSelectedPdf(null)}
+          className="text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div className="relative w-full h-[80vh]">
+        {selectedPdf.type === 'pdf' && (
+          <iframe
+            src={`https://docs.google.com/gview?url=${encodeURIComponent(selectedPdf.file)}&embedded=true`}
+            className="absolute inset-0 w-full h-full"
+            title={selectedPdf.title}
+            sandbox="allow-scripts allow-same-origin"
+          />
         )}
+
+        {selectedPdf.type === 'image' && (
+          <img
+            src={selectedPdf.file}
+            alt={selectedPdf.title}
+            className="absolute inset-0 w-full h-full object-contain"
+            draggable="false"
+            onContextMenu={(e) => e.preventDefault()}
+          />
+        )}
+
+        {selectedPdf.type === 'video' && (
+          <video
+            src={selectedPdf.file}
+            controls
+            controlsList="nodownload nofullscreen noremoteplayback"
+            className="absolute inset-0 w-full h-full"
+            onContextMenu={(e) => e.preventDefault()}
+            disablePictureInPicture
+            muted
+          />
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );
